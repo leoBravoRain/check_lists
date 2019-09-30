@@ -13,13 +13,19 @@ class Choose_Check_List extends StatelessWidget {
           children: <Widget>[
             RaisedButton(
               onPressed: () {
-                print("Environment");
+                Navigator.pushNamed(
+                  context,
+                  '/choose_one_check_list/environment',
+                );
               },
               child: Text("Lista de chequeos de medio ambiente"),
             ),
             RaisedButton(
               onPressed: () {
-                print("Secury");
+                Navigator.pushNamed(
+                   context,
+                  '/choose_one_check_list/security',
+                  );
               },
               child: Text("Lista de chequeos de seguridad"),
             )

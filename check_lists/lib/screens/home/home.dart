@@ -13,7 +13,7 @@ class Home_Screen extends StatelessWidget {
           onPressed: () {
             print("click");
             // Navigate to the second screen using a named route.
-            Navigator.pushNamed(context, '/choos_check_list_type');
+            Navigator.pushNamed(context, '/choose_check_list_type');
           },
         ),
       ),
