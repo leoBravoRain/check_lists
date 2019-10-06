@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1001920658249",
+    "firebase_url": "https://check-lists-693dc.firebaseio.com",
+    "project_id": "check-lists-693dc",
+    "storage_bucket": "check-lists-693dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001920658249:android:fec9071cfcbb19502b7898",
+        "android_client_info": {
+          "package_name": "com.example.check_lists"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1001920658249-tkbh56tngk69775d7ua2g7p52ti3epth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbAPzuwVz9RCDmIlVTO383Y3qXZHv9bD8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1001920658249-tkbh56tngk69775d7ua2g7p52ti3epth.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+
+// components
 import "./screens/home/home.dart";
 import "./screens/choose_check_list/choose_check_list.dart";
 import "./screens/choose_one_check_list/choose_one_check_list.dart";
+import "./screens/check_list/check_list.dart";
+
+// fluro
 import 'package:fluro/fluro.dart'; // Import fluro package.
 
 void main() {
   // run app
   runApp(MyApp());
 }
-        ]
+        
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -31,6 +36,13 @@ class MyApp extends StatelessWidget {
         handlerFunc: (BuildContext context, Map<String, dynamic> params) {
       return new Choose_One_Check_List(category: params["category"][0]);
     }));
+
+    // Route to check list
+    router.define("check_list/:list", handler: new Handler(
+      handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+        return new Check_List(list: params["list"][0]);
+      }
+    ));
 
     return MaterialApp(
         title: 'Flutter Demo',

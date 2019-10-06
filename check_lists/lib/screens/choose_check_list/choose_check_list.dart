@@ -23,9 +23,9 @@ class Choose_Check_List extends StatelessWidget {
             RaisedButton(
               onPressed: () {
                 Navigator.pushNamed(
-                   context,
+                  context,
                   '/choose_one_check_list/security',
-                  );
+                );
               },
               child: Text("Lista de chequeos de seguridad"),
             )
