@@ -27,7 +27,7 @@ class Choose_One_List extends Component {
   static navigationOptions = ({ navigation }) => {
 
     return {
-      title: "Escoger una lista de " + navigation.state.params.category,
+      title: "Escoger una lista",
     //   headerLeft: null,
       // headerLeft: <Image 
       //       source={require('../assets/images/JEYBLANCO.png')} 
@@ -51,21 +51,21 @@ class Choose_One_List extends Component {
 
     super(props);
 
-    // choose category
-    var category = "";
-    // this is the DB name
-    if (this.props.navigation.state.params.category == "env") {
-      category = "env_lists";
-    }
-    else if (this.props.navigation.state.params.category == "sso") {
-      category = "sso_lists";
-    }
+    // // choose category
+    // var category = "";
+    // // this is the DB name
+    // if (this.props.navigation.state.params.category == "env") {
+    //   category = "env_lists";
+    // }
+    // else if (this.props.navigation.state.params.category == "sso") {
+    //   category = "sso_lists";
+    // }
 
     // set states
     this.state = {
 
       // category of list
-      category: category,
+      category: this.props.navigation.state.params.category,
       // lists
       list: [],
 
@@ -89,12 +89,17 @@ class Choose_One_List extends Component {
 
             // array for store lists
             let lists = [];
+            let list;
 
             // iterate over each item
             snapshotquery.forEach(doc => {
 
+              // get document
+              list = doc.data();
+              // add id
+              list["id"] = doc.id;
               // add item to array
-              lists.push(doc.data());
+              lists.push(list);
 
             });
 
@@ -151,7 +156,7 @@ class Choose_One_List extends Component {
                 renderItem={
                     ({item}) => 
 
-                        <TouchableOpacity onPress={()=> Alert.alert("click")}>
+                      <TouchableOpacity onPress={() => this.props.navigation.push("Specific_List", { list: item, category: this.state.category })}>
                             <Text>
                                 {item.name}
                             </Text>
@@ -166,14 +171,5 @@ class Choose_One_List extends Component {
   }
 
 }
-
-// const styles = StyleSheet.create({
-
-// })
-
-// const TabNavigator = createBottomTabNavigator({
-//   Places_by_Category: { screen: 'Places_by_Category' },
-//   // Settings: { screen: SettingsScreen },
-// });
 
 export default withNavigation(Choose_One_List);
