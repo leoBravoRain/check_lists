@@ -73,13 +73,13 @@ class Choose_Check_List_Type extends Component {
             <Button
             title="Medio Ambiente"
             //   color="#f194ff"
-            onPress={() => this.props.navigation.push("Choose_One_List", {type: "env"})}
+            onPress={() => this.props.navigation.push("Choose_One_List", {category: "env"})}
             />
 
             <Button
             title="SSO"
             //   color="#f194ff"
-            onPress={() => this.props.navigation.push("Choose_One_List", {type: "sso"})}
+            onPress={() => this.props.navigation.push("Choose_One_List", {category: "sso"})}
             />
             
         </View>

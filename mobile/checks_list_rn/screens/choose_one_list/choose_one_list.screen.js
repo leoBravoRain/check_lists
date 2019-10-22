@@ -15,11 +15,11 @@ import {
 
 import { withNavigation } from 'react-navigation';
 
-// // check net conecction
-// import NetInfo from "@react-native-community/netinfo";
+// import firestore
+import { fs } from "../../src/firebase";
 
-// // import firestore
-// import {fs} from "../src/firebase";
+// check net conecction
+import NetInfo from "@react-native-community/netinfo";
 
 class Choose_One_List extends Component {
 
@@ -27,7 +27,7 @@ class Choose_One_List extends Component {
   static navigationOptions = ({ navigation }) => {
 
     return {
-      title: "Escoger una lista de " + navigation.state.params.type,
+      title: "Escoger una lista de " + navigation.state.params.category,
     //   headerLeft: null,
       // headerLeft: <Image 
       //       source={require('../assets/images/JEYBLANCO.png')} 
@@ -46,19 +46,98 @@ class Choose_One_List extends Component {
     };
   };
 
-
   //Constructor
   constructor(props) {
 
     super(props);
 
+    // choose category
+    var category = "";
+    // this is the DB name
+    if (this.props.navigation.state.params.category == "env") {
+      category = "env_lists";
+    }
+    else if (this.props.navigation.state.params.category == "sso") {
+      category = "sso_lists";
+    }
+
+    // set states
     this.state = {
+
+      // category of list
+      category: category,
+      // lists
+      list: [],
 
     };
 
-    // this.select_color = this.select_color.bind(this);
   }
 
+  componentDidMount() {
+
+    // check internet connection
+    NetInfo.fetch().then(state => {
+
+      // if it is connected
+      if (state.isConnected) {
+
+        // query to firestore
+        fs.collection(this.state.category).get().then(snapshotquery => {
+
+          // if query is not empty
+          if (!snapshotquery.empty) {
+
+            // array for store lists
+            let lists = [];
+
+            // iterate over each item
+            snapshotquery.forEach(doc => {
+
+              // add item to array
+              lists.push(doc.data());
+
+            });
+
+            // update state
+            this.setState({
+
+              lists: lists,
+
+            });
+
+          }
+
+          // if query is empty
+          else {
+
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+
+          }
+
+        });
+
+      }
+
+      // it isn't connected to internet
+      else {
+
+        // Message to user
+        Alert.alert(
+          'Ups, tenemos problemas con la conexión a Internet',
+          'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
+          [
+            { text: 'Me conectaré' },
+          ],
+          { cancelable: false },
+        )
+
+      };
+
+    });
+
+  }
+  
   // Render method
   render() {
 
@@ -68,26 +147,13 @@ class Choose_One_List extends Component {
         <View>
             
             <FlatList
-                data={[
-                    {key: 'Devin'},
-                    {key: 'Dan'},
-                    {key: 'Dominic'},
-                    {key: 'Jackson'},
-                    {key: 'James'},
-                    {key: 'Joel'},
-                    {key: 'John'},
-                    {key: 'Jillian'},
-                    {key: 'Jimmy'},
-                    {key: 'Julie'},
-                ]}
+                data={this.state.lists}
                 renderItem={
                     ({item}) => 
 
                         <TouchableOpacity onPress={()=> Alert.alert("click")}>
                             <Text>
-
-                                {item.key}
-
+                                {item.name}
                             </Text>
                         </TouchableOpacity>
                 }
