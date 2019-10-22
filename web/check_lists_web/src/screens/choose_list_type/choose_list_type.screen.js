@@ -21,13 +21,13 @@ class Choose_List_Type extends React.Component {
             >
                 <Container>
 
-                    <Link to="/lists_by_category/env_lists_responses">
+                    <Link to="/lists_by_category/env_lists">
                         <Button align="center" variant="contained" color="primary">
                             Listas de Medio Ambiente
                         </Button>
                     </Link>
 
-                    <Link to="/lists_by_category/sso_lists_responses">
+                    <Link to="/lists_by_category/sso_lists">
                         <Button align="center" variant="contained" color="primary">
                             Listas de SSO
                         </Button>

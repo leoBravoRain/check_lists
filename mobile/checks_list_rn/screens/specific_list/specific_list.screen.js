@@ -75,7 +75,7 @@ class Specific_List extends Component {
         const list = {
             id_list: this.props.navigation.state.params.list.id,
             name_list: this.props.navigation.state.params.list.name,
-            anwers: this.state.answers,
+            answers: this.state.answers,
         }
 
         // send responses to server
