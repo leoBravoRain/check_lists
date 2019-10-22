@@ -61,15 +61,53 @@ class Specific_List extends Component {
             questions: [],
             // list of answers
             answers: [],
+            checked: false,
         };
 
         this.send_responses = this.send_responses.bind(this);
-
+        this.change_answer = this.change_answer.bind(this);
     }
 
     // send responses to server
     send_responses () {
         console.log("send response");
+        // create list to send
+        const list = {
+            id_list: this.props.navigation.state.params.list.id,
+            anwers: this.state.answers,
+        }
+
+        // send responses to server
+        // Add a new document with a generated id.
+        fs.collection("env_lists_responses").add(list)
+            .then((docRef) => {
+                console.log("Document written with ID: ", docRef.id);
+
+                // Alert message
+                // Works on both iOS and Android
+                Alert.alert(
+                    'Lista enviada',
+                    'Se han enviado correctamente tus respuestas',
+                    [
+                        { text: 'Entendido', onPress: () => this.props.navigation.navigate("Home")},
+                    ],
+                    { cancelable: false },
+                );
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+                // Alert message
+                // Works on both iOS and Android
+                Alert.alert(
+                    'Error',
+                    'Ha ocurrido un error, porfavor intentálo de nuevo',
+                    [
+                        { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
+                    ],
+                    { cancelable: false },
+                );
+            });
+
     }
 
     componentDidMount() {
@@ -95,14 +133,14 @@ class Specific_List extends Component {
                             // add item to array
                             questions.push(doc.data());
                             // add automatic answers (False: 0)
-                            answers.push(0);
+                            answers.push(false);
                         });
 
                         // update state
                         this.setState({
 
                             questions: questions,
-
+                            answers: answers,
                         });
 
                     }
@@ -137,6 +175,19 @@ class Specific_List extends Component {
         });
 
     }
+    
+    // change answer
+    change_answer (index) {
+        // update anwers
+        let anwers = this.state.answers;
+        // console.log(anwers[index]);
+        anwers[index] = !anwers[index];
+        // console.log(anwers[index]);
+        // update anwers state
+        this.setState({
+            answers: anwers,
+        })
+    }
 
     // Render method
     render() {
@@ -148,18 +199,15 @@ class Specific_List extends Component {
                 <FlatList
                     data={this.state.questions}
                     renderItem={
-                        ({ item }) =>
+                        ({ item, index }) =>
                             <TouchableOpacity onPress={() => Alert.alert("click")}>
                                 <Text>
                                     {item.question}
                                 </Text>
                                 <CheckBox
                                     title='Aplica'
-                                    checked={0}
-                                />
-                                <CheckBox
-                                    title='No aplica'
-                                    checked={0}
+                                    checked={this.state.answers[index]}
+                                    onPress={() => this.change_answer(index)}
                                 />
                             </TouchableOpacity>
                     }
