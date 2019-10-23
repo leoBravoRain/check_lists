@@ -11,6 +11,16 @@ import Choose_Check_List_Type from "./screens/choose_check_list_type/choose_chec
 import Choose_One_List from "./screens/choose_one_list/choose_one_list.screen";
 import Specific_List from "./screens/specific_list/specific_list.screen";
 
+// firebase
+import firestore from '@react-native-firebase/firestore';
+
+// firebase offline behavier configuration
+async function bootstrap() {
+  await firestore().settings({
+    persistence: true,
+    cacheSizeBytes: firestore.CACHE_SIZE_UNLIMITED, // unlimited cache size
+  });
+}
 
 const AppStackNavigator = createStackNavigator(
   // {headerLayoutPreset: 'center'},

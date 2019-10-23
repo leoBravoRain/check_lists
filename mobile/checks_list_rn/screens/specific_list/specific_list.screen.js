@@ -19,7 +19,8 @@ import { CheckBox } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
 
 // import firestore
-import { fs } from "../../src/firebase";
+// import { fs } from "../../src/firebase";
+import firestore from '@react-native-firebase/firestore';
 
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
@@ -70,7 +71,8 @@ class Specific_List extends Component {
 
     // send responses to server
     send_responses () {
-        console.log("send response");
+
+        console.log("send response new implemenation!");
         // create list to send
         const list = {
             id_list: this.props.navigation.state.params.list.id,
@@ -80,7 +82,8 @@ class Specific_List extends Component {
 
         // send responses to server
         // Add a new document with a generated id.
-        fs.collection("env_lists_responses").add(list)
+        // fs.collection("env_lists_responses").add(list)
+        firestore().collection("env_lists_responses").add(list)
             .then((docRef) => {
                 console.log("Document written with ID: ", docRef.id);
 
@@ -120,9 +123,13 @@ class Specific_List extends Component {
             if (state.isConnected) {
 
                 // query to firestore
-                fs.collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
-
-                    // if query is not empty
+                // fs.collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
+                // firestore().collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
+                firestore().collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').onSnapshot(snapshotquery => {
+                
+                    // console.log("new implementation!");
+                    
+                    // if query is naot empty
                     if (!snapshotquery.empty) {
 
                         // array for store questions

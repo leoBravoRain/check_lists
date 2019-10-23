@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@react-native-community/netinfo": "^4.4.0",
+    "@react-native-firebase/app": "^6.0.2",
+    "@react-native-firebase/auth": "^6.0.2",
+    "@react-native-firebase/firestore": "^6.0.2",
     "firebase": "^7.2.1",
     "react": "16.9.0",
     "react-native": "0.61.2",

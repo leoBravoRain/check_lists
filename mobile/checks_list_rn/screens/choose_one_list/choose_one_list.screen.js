@@ -16,7 +16,9 @@ import {
 import { withNavigation } from 'react-navigation';
 
 // import firestore
-import { fs } from "../../src/firebase";
+// import { fs } from "../../src/firebase";
+// import firestore from '@react-native-firebase/firestore';
+import  firestore from '@react-native-firebase/firestore';
 
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
@@ -82,7 +84,13 @@ class Choose_One_List extends Component {
       if (state.isConnected) {
 
         // query to firestore
-        fs.collection(this.state.category).get().then(snapshotquery => {
+        // fs.collection(this.state.category).get().then(snapshotquery => {
+        // firestore().collection(this.state.category).get().then(snapshotquery => {
+        // firestore().collection(this.state.category).get().onSnapshot(snapshotquery => {
+        firestore().collection(this.state.category).onSnapshot(snapshotquery => {
+        // onSnapshot
+
+          // console.log("new implementation!");
 
           // if query is not empty
           if (!snapshotquery.empty) {
@@ -143,6 +151,15 @@ class Choose_One_List extends Component {
 
   }
   
+  // componentWillUnmount () {
+
+  //   // unsuscribe update from real data base firebase
+  //   unsuscribe();
+
+  //   console.log("unsuscribe!");
+    
+  // }
+
   // Render method
   render() {
 
