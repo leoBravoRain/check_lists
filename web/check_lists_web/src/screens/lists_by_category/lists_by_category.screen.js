@@ -19,13 +19,8 @@ import { Button } from "@material-ui/core";
 import { fs } from "../../libraries/firebase/firebase";
 
 // for create .csv
-// import json2csv from "json2csv";
-// const { Parser } = require('json2csv');
 import XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-
-// create .csv
-// import { CSVLink, CSVDownload } from "react-csv";
 
 class Lists_by_Category extends React.Component {
 
@@ -121,7 +116,7 @@ class Lists_by_Category extends React.Component {
                         
                     });
 
-                    console.log(lists);
+                    // console.log(lists);
 
                     // try to create csv file and download
                     try {
@@ -129,7 +124,7 @@ class Lists_by_Category extends React.Component {
                         // empty workbook object
                         var wb = XLSX.utils.book_new();
                         
-                        console.log(list_name);
+                        // console.log(list_name);
 
                         wb.Props = {
                             Title: list_name,
@@ -165,7 +160,7 @@ class Lists_by_Category extends React.Component {
                         saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
                         // });
 
-                        console.log(wb);
+                        // console.log(wb);
 
                         // this work for .csv and it can open with libreoffice but not with excel
                         // // parser data to csv format
