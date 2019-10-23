@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import Choose_List_Type from './screens/choose_list_type/choose_list_type.screen';
 import Lists_by_Category from './screens/lists_by_category/lists_by_category.screen';
+import Login from "./screens/login/login.screen";
+import Home from "./screens/home/home.screen";
 
 // material ui
 import theme from './libraries/material-ui/theme';
@@ -12,11 +14,43 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { Link as Link_ } from '@material-ui/core/Link';
+
+// firebase
+import { auth } from "./libraries/firebase/firebase";
 
 // Component 
 class App extends Component {
 
+  // constructor
+  constructor(props) {
+
+    // constructur of parent
+    super(props);
+
+    this.on_logout = this.on_logout.bind(this);
+
+  };
+  
+  on_logout() {
+
+    // logout
+    auth.signOut().then(res => {
+
+      // console.log("loogut");
+      // console.log(this);
+
+      // window.redirect(window.location.host)
+      // window.location = "/";
+      // this.props.history.push('');
+
+    }).catch(error => {
+
+      console.log(error);
+
+    });
+
+  }
+  
   // render method
   render() {
 
@@ -45,7 +79,27 @@ class App extends Component {
                 <Typography gutterBottom variant="h6" component="h6">
 
                   Inicio
-  
+
+							</Typography>
+
+              </Link>
+
+              <Link to="/choose_list_type" className="nav-link">
+
+                <Typography gutterBottom variant="h6" component="h6">
+
+                  Listas de chequeo
+
+							</Typography>
+
+              </Link>
+
+              <Link className="nav-link">
+
+                <Typography gutterBottom variant="h6" component="h6" onClick={this.on_logout}>
+
+                  Cerrar sesión
+
 							</Typography>
 
               </Link>
@@ -54,9 +108,13 @@ class App extends Component {
 
           </AppBar>
 
-          <Route path="/" exact component={Choose_List_Type} />
+          <Route path = "/" exact component = {Home} />
+          
+          <Route path = "/login" exact component = {Login} />
 
-          <Route path="/lists_by_category/:category/" exact component={Lists_by_Category} />
+          <Route path = "/choose_list_type" exact component={Choose_List_Type} />
+
+          <Route path = "/lists_by_category/:category/" exact component={Lists_by_Category} />
 
         </Router>
 

@@ -16,7 +16,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { Button } from "@material-ui/core";
 
 // make request to server
-import { fs } from "../../libraries/firebase/firebase";
+import { fs, auth } from "../../libraries/firebase/firebase";
 
 // for create .csv
 import XLSX from 'xlsx';
@@ -46,6 +46,26 @@ class Lists_by_Category extends React.Component {
     }
     
     componentDidMount () {
+
+        // check if user is logged
+        auth.onAuthStateChanged((user) => {
+
+            if (!user) {
+
+                console.log("user not logged");
+
+                this.props.history.push('/login');
+
+            }
+
+            else {
+
+                console.log("user logged");
+
+                // this.props.history.push('/login/');
+            }
+
+        });
 
         // get request for get data
         // fs.collection(this.props.match.params.category).get()

@@ -7,8 +7,36 @@ import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
 import { Button } from "@material-ui/core";
 
+import {auth} from "../../libraries/firebase/firebase";
+
 class Choose_List_Type extends React.Component {
 
+    componentDidMount() {
+
+        // check if user is logged
+        auth.onAuthStateChanged((user) => {
+
+            if (!user) {
+
+                console.log("user not logged");
+
+                this.props.history.push('/login/');
+
+                console.log("aosjid");
+
+            }
+
+            else {
+
+                console.log("user logged");
+
+                // this.props.history.push('/login/');
+            }
+
+        });
+
+    }
+    
     render() {
 
         return (
