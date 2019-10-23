@@ -19,9 +19,10 @@ import { Button } from "@material-ui/core";
 import { fs } from "../../libraries/firebase/firebase";
 
 // for create .csv
-import json2csv from "json2csv";
-
-const { Parser } = require('json2csv');
+// import json2csv from "json2csv";
+// const { Parser } = require('json2csv');
+import XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 // create .csv
 // import { CSVLink, CSVDownload } from "react-csv";
@@ -120,22 +121,67 @@ class Lists_by_Category extends React.Component {
                         
                     });
 
+                    console.log(lists);
+
                     // try to create csv file and download
                     try {
-                        // parser data to csv format
-                        const parser = new Parser();
-                        const csv = parser.parse(lists);
 
-                        // create csv file
-                        let csvContent = "data:text/csv;charset=utf-8," + csv;
-                        var encodedUri = encodeURI(csvContent);
-                        // create hidden link
-                        var link = document.createElement("a");
-                        link.setAttribute("href", encodedUri);
-                        link.setAttribute("download", list_name + ".ods");
-                        document.body.appendChild(link); // Required for FF
-                        // This will download the data file named "my_data.csv".
-                        link.click();
+                        // empty workbook object
+                        var wb = XLSX.utils.book_new();
+                        
+                        console.log(list_name);
+
+                        wb.Props = {
+                            Title: list_name,
+                            // Subject: "Test",
+                            // Author: "Red Stapler",
+                            // CreatedDate: new Date(2017, 12, 19)
+                        };
+
+                        // add sheet
+                        wb.SheetNames.push("Respuestas");
+
+                        // add content to sheet
+                        // var ws_data = [['quiero', 'un', 'dron']];  //a row with 2 columns
+                        var ws_data = lists;
+
+                        // create the sheet from this array
+                        var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                        // assign sheet to workbook
+                        wb.Sheets["Respuestas"] = ws;
+
+                        // export workbook as xlsx binary
+                        var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+                        function s2ab(s) {
+                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                            var view = new Uint8Array(buf);  //create uint8array as viewer
+                            for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                            return buf;    
+                        }
+
+                        // $("#button-a").click(function () {
+                        saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
+                        // });
+
+                        console.log(wb);
+
+                        // this work for .csv and it can open with libreoffice but not with excel
+                        // // parser data to csv format
+                        // const parser = new Parser();
+                        // const csv = parser.parse(lists);
+
+                        // // create csv file
+                        // let csvContent = "data:text/csv;charset=utf-8," + csv;
+                        // var encodedUri = encodeURI(csvContent);
+                        // // create hidden link
+                        // var link = document.createElement("a");
+                        // link.setAttribute("href", encodedUri);
+                        // link.setAttribute("download", list_name + ".csv");
+                        // document.body.appendChild(link); // Required for FF
+                        // // This will download the data file named "my_data.csv".
+                        // link.click();
 
                     } 
                     // if there is some error
