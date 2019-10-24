@@ -59,7 +59,7 @@ class Specific_List extends Component {
         this.state = {
 
             // list of questions
-            questions: [],
+            // questions: [],
             // list of answers
             answers: [],
             checked: false,
@@ -80,23 +80,55 @@ class Specific_List extends Component {
             answers: this.state.answers,
         }
 
+        console.log(this.state.answers);
+
+        // // check internet connection
+        // NetInfo.fetch().then(state => {
+
+        // array for store lists
+        let env_lists = [];
+        
         // send responses to server
         // Add a new document with a generated id.
         // fs.collection("env_lists_responses").add(list)
         firestore().collection("env_lists_responses").add(list)
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
+        .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+            
+            // check internet connection
+            NetInfo.fetch().then(state => {
+                
+                // if it is connected
+                if (state.isConnected) {
 
-                // Alert message
-                // Works on both iOS and Android
-                Alert.alert(
-                    'Lista enviada',
-                    'Se han enviado correctamente tus respuestas',
-                    [
-                        { text: 'Entendido', onPress: () => this.props.navigation.navigate("Home")},
-                    ],
-                    { cancelable: false },
-                );
+                    // Works on both iOS and Android
+                    Alert.alert(
+                        'Lista enviada',
+                        'Se han enviado correctamente tus respuestas',
+                        [
+                            { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
+                        ],
+                        { cancelable: false },
+                    );
+                }
+
+                // if there is not internet connection
+                else {
+    
+                    console.log("Sin conexión a internet. Envio postergado hasta nueva conexión");
+    
+                    // Message to user
+                    Alert.alert(
+                        'Envío de respuestas',
+                        'Detectamos que no tienes conexión a internet, por lo que esta respuesta se almacenará en tu teléfono y cuando tengas internet nuevamente se enviará',
+                        [
+                            { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
+                        ],
+                        { cancelable: false },
+                    )
+    
+                }
+                    
             })
             .catch((error) => {
                 console.error("Error adding document: ", error);
@@ -111,76 +143,92 @@ class Specific_List extends Component {
                     { cancelable: false },
                 );
             });
+        });
 
     }
 
     componentDidMount() {
 
-        // check internet connection
-        NetInfo.fetch().then(state => {
+        // get length of questions
+        const lenght_questions = this.props.navigation.state.params.list.questions.length;
+        // array of store answers
+        var answers = [];
+        // crate array of answers
+        for (var i = 0; i < lenght_questions; i++) {
+            // add automatic answers (False: 0)
+            answers.push(false);
+        }
 
-            // if it is connected
-            if (state.isConnected) {
-
-                // query to firestore
-                // fs.collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
-                // firestore().collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
-                firestore().collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').onSnapshot(snapshotquery => {
-                
-                    // console.log("new implementation!");
-                    
-                    // if query is naot empty
-                    if (!snapshotquery.empty) {
-
-                        // array for store questions
-                        let questions = [];
-                        let answers = [];
-
-                        // iterate over each item
-                        snapshotquery.forEach(doc => {
-                            // add item to array
-                            questions.push(doc.data());
-                            // add automatic answers (False: 0)
-                            answers.push(false);
-                        });
-
-                        // update state
-                        this.setState({
-
-                            questions: questions,
-                            answers: answers,
-                        });
-
-                    }
-
-                    // if query is empty
-                    else {
-
-                        // doc.data() will be undefined in this case
-                        console.log("No such document!");
-
-                    }
-
-                });
-
-            }
-
-            // it isn't connected to internet
-            else {
-
-                // Message to user
-                Alert.alert(
-                    'Ups, tenemos problemas con la conexión a Internet',
-                    'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
-                    [
-                        { text: 'Me conectaré' },
-                    ],
-                    { cancelable: false },
-                )
-
-            };
-
+        // update state
+        this.setState({
+            answers: answers,
         });
+
+        // // check internet connection
+        // NetInfo.fetch().then(state => {
+
+        //     // if it is connected
+        //     if (state.isConnected) {
+
+        //         // query to firestore
+        //         // fs.collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
+        //         // firestore().collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').get().then(snapshotquery => {
+        //         firestore().collection(this.props.navigation.state.params.category).doc(this.props.navigation.state.params.list.id).collection('questions').onSnapshot(snapshotquery => {
+                
+        //             // console.log("new implementation!");
+                    
+        //             // if query is naot empty
+        //             if (!snapshotquery.empty) {
+
+        //                 // array for store questions
+        //                 let questions = [];
+        //                 let answers = [];
+
+        //                 // iterate over each item
+        //                 snapshotquery.forEach(doc => {
+        //                     // add item to array
+        //                     questions.push(doc.data());
+        //                     // add automatic answers (False: 0)
+        //                     answers.push(false);
+        //                 });
+
+        //                 // update state
+        //                 this.setState({
+
+        //                     questions: questions,
+        //                     answers: answers,
+        //                 });
+
+        //             }
+
+        //             // if query is empty
+        //             else {
+
+        //                 // doc.data() will be undefined in this case
+        //                 console.log("No such document!");
+
+        //             }
+
+        //         });
+
+        //     }
+
+        //     // it isn't connected to internet
+        //     else {
+
+        //         // Message to user
+        //         Alert.alert(
+        //             'Ups, tenemos problemas con la conexión a Internet',
+        //             'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
+        //             [
+        //                 { text: 'Me conectaré' },
+        //             ],
+        //             { cancelable: false },
+        //         )
+
+        //     };
+
+        // });
 
     }
     
@@ -205,12 +253,12 @@ class Specific_List extends Component {
 
             <View>
                 <FlatList
-                    data={this.state.questions}
+                    data={this.props.navigation.state.params.list.questions}
                     renderItem={
                         ({ item, index }) =>
-                            <TouchableOpacity onPress={() => Alert.alert("click")}>
+                            <TouchableOpacity>
                                 <Text>
-                                    {item.question}
+                                    {item}
                                 </Text>
                                 <CheckBox
                                     title='Aplica'

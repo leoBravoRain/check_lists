@@ -21,7 +21,8 @@
     "react-native-gesture-handler": "^1.4.1",
     "react-native-vector-icons": "^6.6.0",
     "react-navigation": "^4.0.10",
-    "react-navigation-stack": "^1.9.4"
+    "react-navigation-stack": "^1.9.4",
+    "realm": "^3.0.0-node12.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",

@@ -15,13 +15,13 @@ import {
 
 import { withNavigation } from 'react-navigation';
 
-// import firestore
-// import { fs } from "../../src/firebase";
-// import firestore from '@react-native-firebase/firestore';
-import  firestore from '@react-native-firebase/firestore';
+// // import firestore
+// // import { fs } from "../../src/firebase";
+// // import firestore from '@react-native-firebase/firestore';
+// import  firestore from '@react-native-firebase/firestore';
 
-// check net conecction
-import NetInfo from "@react-native-community/netinfo";
+// // check net conecction
+// import NetInfo from "@react-native-community/netinfo";
 
 class Choose_One_List extends Component {
 
@@ -66,10 +66,10 @@ class Choose_One_List extends Component {
     // set states
     this.state = {
 
-      // category of list
-      category: this.props.navigation.state.params.category,
-      // lists
-      list: [],
+      // // category of list
+      // category: this.props.navigation.state.params.category,
+      // // lists
+      // list: this.props.navigation.state.params.lists,
 
     };
 
@@ -77,77 +77,77 @@ class Choose_One_List extends Component {
 
   componentDidMount() {
 
-    // check internet connection
-    NetInfo.fetch().then(state => {
+    // // check internet connection
+    // NetInfo.fetch().then(state => {
 
-      // if it is connected
-      if (state.isConnected) {
+    //   // if it is connected
+    //   if (state.isConnected) {
 
-        // query to firestore
-        // fs.collection(this.state.category).get().then(snapshotquery => {
-        // firestore().collection(this.state.category).get().then(snapshotquery => {
-        // firestore().collection(this.state.category).get().onSnapshot(snapshotquery => {
-        firestore().collection(this.state.category).onSnapshot(snapshotquery => {
-        // onSnapshot
+    //     // query to firestore
+    //     // fs.collection(this.state.category).get().then(snapshotquery => {
+    //     // firestore().collection(this.state.category).get().then(snapshotquery => {
+    //     // firestore().collection(this.state.category).get().onSnapshot(snapshotquery => {
+    //     firestore().collection(this.state.category).onSnapshot(snapshotquery => {
+    //     // onSnapshot
 
-          // console.log("new implementation!");
+    //       // console.log("new implementation!");
 
-          // if query is not empty
-          if (!snapshotquery.empty) {
+    //       // if query is not empty
+    //       if (!snapshotquery.empty) {
 
-            // array for store lists
-            let lists = [];
-            let list;
+    //         // array for store lists
+    //         let lists = [];
+    //         let list;
 
-            // iterate over each item
-            snapshotquery.forEach(doc => {
+    //         // iterate over each item
+    //         snapshotquery.forEach(doc => {
 
-              // get document
-              list = doc.data();
-              // add id
-              list["id"] = doc.id;
-              // add item to array
-              lists.push(list);
+    //           // get document
+    //           list = doc.data();
+    //           // add id
+    //           list["id"] = doc.id;
+    //           // add item to array
+    //           lists.push(list);
 
-            });
+    //         });
 
-            // update state
-            this.setState({
+    //         // update state
+    //         this.setState({
 
-              lists: lists,
+    //           lists: lists,
 
-            });
+    //         });
 
-          }
+    //       }
 
-          // if query is empty
-          else {
+    //       // if query is empty
+    //       else {
 
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
+    //         // doc.data() will be undefined in this case
+    //         console.log("No such document!");
 
-          }
+    //       }
 
-        });
+    //     });
 
-      }
+    //   }
 
-      // it isn't connected to internet
-      else {
+    //   // it isn't connected to internet
+    //   else {
 
-        // Message to user
-        Alert.alert(
-          'Ups, tenemos problemas con la conexión a Internet',
-          'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
-          [
-            { text: 'Me conectaré' },
-          ],
-          { cancelable: false },
-        )
+    //     // Message to user
+    //     Alert.alert(
+    //       'Ups, tenemos problemas con la conexión a Internet',
+    //       'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
+    //       [
+    //         { text: 'Me conectaré' },
+    //       ],
+    //       { cancelable: false },
+    //     )
 
-      };
+    //   };
 
-    });
+    // });
 
   }
   
@@ -169,16 +169,15 @@ class Choose_One_List extends Component {
         <View>
             
             <FlatList
-                data={this.state.lists}
-                renderItem={
-                    ({item}) => 
-
-                      <TouchableOpacity onPress={() => this.props.navigation.push("Specific_List", { list: item, category: this.state.category })}>
-                            <Text>
-                                {item.name}
-                            </Text>
-                        </TouchableOpacity>
-                }
+              data = {this.props.navigation.state.params.lists}
+              renderItem={
+                  ({item}) => 
+                    <TouchableOpacity onPress={() => this.props.navigation.push("Specific_List", { list: item})}>
+                          <Text>
+                              {item.name}
+                          </Text>
+                      </TouchableOpacity>
+              }
             />
             
         </View>

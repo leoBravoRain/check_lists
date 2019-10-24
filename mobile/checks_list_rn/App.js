@@ -6,7 +6,7 @@ import {
 
 import { createStackNavigator } from 'react-navigation-stack'
 
-import Home from "./screens/home/home.screen";
+// import Home from "./screens/home/home.screen";
 import Choose_Check_List_Type from "./screens/choose_check_list_type/choose_check_list_type.screen";
 import Choose_One_List from "./screens/choose_one_list/choose_one_list.screen";
 import Specific_List from "./screens/specific_list/specific_list.screen";
@@ -26,7 +26,7 @@ const AppStackNavigator = createStackNavigator(
   // {headerLayoutPreset: 'center'},
   {
 
-    Home: Home,
+    // Home: Home,
     Choose_Check_List_Type: Choose_Check_List_Type,
     Choose_One_List: Choose_One_List,
     Specific_List: Specific_List,
@@ -44,7 +44,7 @@ const AppStackNavigator = createStackNavigator(
   },
 
   {
-    initialRouteName: "Home",
+    initialRouteName: "Choose_Check_List_Type",
     // headerLayoutPreset: 'center',
     defaultNavigationOptions: {
 
