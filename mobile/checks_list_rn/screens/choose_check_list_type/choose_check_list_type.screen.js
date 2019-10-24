@@ -15,7 +15,6 @@ import {
 import { withNavigation } from 'react-navigation';
 
 // realm local database
-// const Realm = require('realm');
 import Realm from 'realm';
 
 // check net conecction
@@ -30,11 +29,29 @@ import firestore from '@react-native-firebase/firestore';
 // // import firestore
 // import {fs} from "../src/firebase";
 
+// // firebase offline behavier configuration
+// async function bootstrap() {
+
+//   await firestore().settings({
+
+//     // offline work
+//     persistence: false,
+
+//     // cache size 
+//     cacheSizeBytes: firestore.CACHE_SIZE_UNLIMITED, // unlimited cache size
+
+    
+//   });
+
+//   console.log("Settings of firestore");
+  
+// }
 // define models
 const Env_List = {
   name: "Env_List",
-  id: "string",
+  // id: "string",
   properties: {
+    id: "string",
     name: "string",
     questions: "string[]",
   }
@@ -42,10 +59,21 @@ const Env_List = {
 
 const SSO_List = {
   name: "SSO_List",
-  id: "string",
+  // id: "string",
   properties: {
+    id: "string",
     name: "string",
     questions: "string[]",
+  }
+}
+
+const Env_List_Answers = {
+  name: "Env_List_Answers",
+  // id_list: "string",
+  properties: {
+    id_list: "string",
+    name_list: "string",
+    answers: "bool[]",
   }
 }
 
@@ -83,6 +111,7 @@ class Choose_Check_List_Type extends Component {
     this.state = {
       env_lists: [],
       sso_lists: [],
+      stored_answers: 0,
     };
 
     // this.select_color = this.select_color.bind(this);
@@ -90,272 +119,256 @@ class Choose_Check_List_Type extends Component {
 
   componentDidMount() {
 
+    // console.log("Component did mount");
+
     // check internet connection
     NetInfo.fetch().then(state => {
       
       // array for store lists
       let env_lists = [];
       let sso_lists = [];
+      
+      // local DB isntance
+      const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
 
-      const realm = new Realm({ schema: [Env_List, SSO_List] });
+      // try {
 
-      // if it is connected
-      if (state.isConnected) {
+        // if it is connected
+        if (state.isConnected) {
+          console.log("Internet connection was detected");
+          // query to firestore
 
-        // query to firestore
+          // ERROR WHEN BOTH ENV AND SSO are trying to write to local database
+          
+          // Env lists
 
+          // CHANGE ENV_LIST_NEW_STRUCTURE
+          // get lists from server
+          firestore().collection("env_list_new_structure").get().then(snapshotquery => {
 
-        // ERROR WHEN BOTH ENV AND SSO are trying to write to local database
-        
-        // Env lists
+            console.log("Update database of ENV");
 
-        // CHANGE ENV_LIST_NEW_STRUCTURE
-        firestore().collection("env_list_new_structure").get().then(snapshotquery => {
+            // if query is not empty
+            // update local database. 1) remove prior database 2) write new database
+            if (!snapshotquery.empty) {
 
-          console.log("Update database of ENV");
+              let list;
 
-          // if query is not empty
-          // update local database. 1) remove prior database 2) write new database
-          if (!snapshotquery.empty) {
+              // new instance of database
+              // const realm = new Realm({ schema: [Env_List] });
 
-            let list;
+              // console.log("query: ", realm.objects("Env_List"));
 
-            // new instance of database
-            // const realm = new Realm({ schema: [Env_List] });
-
-            // console.log("query: ", realm.objects("Env_List"));
-
-            // delete previous data
-            realm.write(() => {
-              // realm.deleteAll()
-              realm.delete(realm.objects("Env_List"));
-            })
-
-            // console.log("query: ", realm.objects("List"));
-
-            // iterate over each item
-            snapshotquery.forEach(doc => {
-
-              // get document
-              list = doc.data();
-              // add id
-              list["id"] = doc.id;
-
-              // write in db
+              // delete previous data
               realm.write(() => {
-                realm.create("Env_List", list);
+                // realm.deleteAll()
+                realm.delete(realm.objects("Env_List"));
+              })
+
+              // console.log("query: ", realm.objects("List"));
+
+              // iterate over each item
+              snapshotquery.forEach(doc => {
+
+                // get document
+                list = doc.data();
+                // add id
+                list["id"] = doc.id;
+
+                // write in db
+                realm.write(() => {
+                  realm.create("Env_List", list);
+                });
+
+                // add item to array
+                env_lists.push(list);
+
               });
 
-              // // add item to array
-              env_lists.push(list);
+              // console.log(env_lists);
 
-            });
+              console.log("env lists updated: ", realm.objects("Env_List"));
 
-            // console.log(env_lists);
+              console.log("Finish update database of ENV");
+              // // update state
+              // this.setState({
 
-            console.log("env lists: ", realm.objects("Env_List"));
+              //   env_lists: env_lists,
 
+              // });
 
-            // // update state
-            // this.setState({
+            }
 
-            //   env_lists: env_lists,
+            // if query is empty
+            else {
 
-            // });
+              // doc.data() will be undefined in this case
+              console.log("No such document!");
 
-          }
+            }
 
-          // if query is empty
-          else {
+          });
 
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
+          // SSO lists
+          // CHANGE SSO_LIST_NEW_STRUCTURE
+          // get lists from server
+          firestore().collection("sso_list_new_structure").get().then(snapshotquery => {
+            console.log("Update database of SSO");
 
-          }
+            // if query is not empty
+            // update local database. 1) remove prior database 2) write new database
+            if (!snapshotquery.empty) {
 
-        });
+              let list;
 
-        // SSO lists
-        // CHANGE SSO_LIST_NEW_STRUCTURE
-        firestore().collection("sso_list_new_structure").get().then(snapshotquery => {
+              // new instance of database
+              // const realm = new Realm({ schema: [SSO_List] });
 
-          console.log("Update database of SSO");
+              // console.log("query: ", realm.objects("SSO_List"));
 
-          // if query is not empty
-          // update local database. 1) remove prior database 2) write new database
-          if (!snapshotquery.empty) {
-
-            let list;
-
-            // new instance of database
-            // const realm = new Realm({ schema: [SSO_List] });
-
-            // console.log("query: ", realm.objects("SSO_List"));
-
-            // delete previous data
-            realm.write(() => {
-              // realm.deleteAll()
-              realm.delete(realm.objects("SSO_List"));
-            })
-
-            // console.log("query: ", realm.objects("List"));
-
-            // iterate over each item
-            snapshotquery.forEach(doc => {
-
-              // get document
-              list = doc.data();
-              // add id
-              list["id"] = doc.id;
-
-              // write in db
+              // delete previous data
               realm.write(() => {
-                realm.create("SSO_List", list);
+                // realm.deleteAll()
+                realm.delete(realm.objects("SSO_List"));
+              })
+
+              // console.log("query: ", realm.objects("List"));
+
+              // iterate over each item
+              snapshotquery.forEach(doc => {
+
+                // get document
+                list = doc.data();
+                // add id
+                list["id"] = doc.id;
+
+                // write in db
+                realm.write(() => {
+                  realm.create("SSO_List", list);
+                });
+
+                // // add item to array
+                sso_lists.push(list);
+
               });
 
-              // // add item to array
-              sso_lists.push(list);
+              // console.log(env_lists);
 
-            });
+              console.log("sso lists updated: ", realm.objects("SSO_List"));
 
-            // console.log(env_lists);
+              console.log("Finish update database of SSO");
 
-            console.log("sso lists: ", realm.objects("SSO_List"));
+              // // update state
+              // this.setState({
+
+              //   sso_lists: list,
+
+              // });
+
+            }
+
+            // if query is empty
+            else {
+
+              // doc.data() will be undefined in this case
+              console.log("No such document!");
+
+            }
+
+          });
 
 
-            // // update state
-            // this.setState({
+          // get stored anwsers and send to server
 
-            //   sso_lists: list,
+          // create local DB instance
+          const env_list_anwers = realm.objects('Env_List_Answers');
 
-            // });
-
+          // check if there is answers
+          if (!(Object.keys(env_list_anwers).length === 0)) {
+            console.log("Anwsers without send were detected. Try to send to server")
+            // create batch (do multiple operation once time and all together)
+            let batch = firestore().batch();
+            // ref of firestore db
+            let ref;
+            // iterate throught each answer
+            for (var key in env_list_anwers) {
+              // console.log(env_list_anwers[key]);
+              // Create ref (for craete an auto-ID in firesotre)
+              ref = firestore().collection('env_lists_responses').doc();
+              // add new doc to batch
+              batch.set(ref, env_list_anwers[key]);// Batch has a limit of 500 element !!
+            }
+            // execute batch (if there is an error with any doc, so the full batch is not executed)
+            batch.commit().then(()=> {
+              // if batch was executed correctly
+              console.log("Stored answers were sended to server");
+              // delete answers
+              realm.write(() => {
+                // delete all env lists anwsers of local DB
+                realm.delete(realm.objects("Env_List_Answers"));
+                console.log("Answers from local DB were deleted from local database because it were sended to server");
+                // repeat with sso lists here
+              });
+  
+            })
           }
-
-          // if query is empty
+          // if there is not answers in local database
           else {
-
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
-
+            console.log("There is not answers in DB yet");
           }
+        }
+        // it isn't connected to internet
+        else {
+          console.log("There is not internet connection. Using local database to get list and their questions");
 
-        });
-        //   console.log("Update database");
+          // get lists from local DB
+          const env_lists_local = realm.objects("Env_List");
+          const sso_lists_local = realm.objects("SSO_List");
 
-        //   // if query is not empty
-        //   // update local database. 1) remove prior database 2) write new database
-        //   if (!snapshotquery.empty) {
+          // add lists from local DB to list (for define in state of component)
+          for (var key in env_lists_local) {
+            // add item to array
+            env_lists.push(env_lists_local[key]);
+          };
+          // add lists from local DB to list (for define in state of component)
+          for (var key in sso_lists_local) {
+            // add item to array
+            sso_lists.push(sso_lists_local[key]);
+          };
 
-        //     let list;
-
-        //     // new instance of database
-        //     const realm = new Realm({ schema: [SSO_List] });
-
-        //     console.log("query: ", realm.objects("SSO_List"));
-
-        //     // delete previous data
-        //     realm.write(() => {
-        //       realm.deleteAll()
-        //     })
-
-        //     // console.log("query: ", realm.objects("List"));
-
-        //     // iterate over each item
-        //     snapshotquery.forEach(doc => {
-
-        //       // get document
-        //       list = doc.data();
-        //       // add id
-        //       list["id"] = doc.id;
-
-        //       // write in db
-        //       realm.write(() => {
-        //         realm.create("Env_List", list);
-        //       });
-
-        //       // // add item to array
-        //       env_lists.push(list);
-
-        //     });
-
-        //     // console.log(env_lists);
-
-        //     console.log("query: ", realm.objects("Env_List"));
-
-
-        //     // update state
-        //     this.setState({
-
-        //       env_lists: env_lists,
-
-        //     });
-
-        //   }
-
-        //   // if query is empty
-        //   else {
-
-        //     // doc.data() will be undefined in this case
-        //     console.log("No such document!");
-
-        //   }
-
-        // });
-
-      }
-
-      // it isn't connected to internet
-      else {
-
-        console.log("Using database");
-
-        // get data from local DB
-
-        // new instance of database
-        // const realm = new Realm({ schema: [Env_List, SSO_List] });
-
-        // console.log("query: ", realm.objects("List"));
-
-        const env_lists_local = realm.objects("Env_List");
-        const sso_lists_local = realm.objects("SSO_List");
-
-        // console.log(env_lists_local[1]);
-
-        for (var key in env_lists_local) {
-
-          // add item to array
-          env_lists.push(env_lists_local[key]);
-
+          console.log("env lists obtained from local database: ", realm.objects("Env_List"));
+          console.log("sso lists obtained from local database: ", realm.objects("SSO_List"));
+          // console.log("query: ", realm.objects("SSO_List"));
+          console.log("env lists answers obtained from local database: ", realm.objects('Env_List_Answers'));
+          // console.log(env_lists);
+          
+          
+          // // Message to user
+          // Alert.alert(
+            //   'Ups, tenemos problemas con la conexión a Internet',
+            //   'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
+            //   [
+              //     { text: 'Me conectaré' },
+              //   ],
+              //   { cancelable: false },
+              // )
+              
         };
 
-        for (var key in sso_lists_local) {
+      // }
 
-          // add item to array
-          sso_lists.push(sso_lists_local[key]);
+      // finally {
+        // console.log("Close local DB");
+        // realm.close();
+      // }
 
-        };
-
-        // console.log(env_lists);
-        
-        
-        // // Message to user
-        // Alert.alert(
-          //   'Ups, tenemos problemas con la conexión a Internet',
-          //   'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
-          //   [
-            //     { text: 'Me conectaré' },
-            //   ],
-            //   { cancelable: false },
-            // )
-            
-      };
 
       // update state
       this.setState({
 
         env_lists: env_lists,
         sso_lists: sso_lists,
+        stored_answers: realm.objects('Env_List_Answers').length,
 
       });
 
@@ -396,6 +409,10 @@ class Choose_Check_List_Type extends Component {
             //   color="#f194ff"
           onPress={() => this.props.navigation.push("Choose_One_List", { lists: this.state.sso_lists})}
             />
+
+            <Text>
+              Respuestas por enviar: {this.state.stored_answers}
+            </Text>
             
         </View>
 

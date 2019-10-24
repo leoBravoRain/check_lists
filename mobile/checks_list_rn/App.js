@@ -14,13 +14,26 @@ import Specific_List from "./screens/specific_list/specific_list.screen";
 // firebase
 import firestore from '@react-native-firebase/firestore';
 
+
 // firebase offline behavier configuration
 async function bootstrap() {
+
   await firestore().settings({
-    persistence: true,
+
+    // offline work
+    persistence: false,
+
+    // cache size 
     cacheSizeBytes: firestore.CACHE_SIZE_UNLIMITED, // unlimited cache size
+
+
   });
-}
+
+  console.log("Settings of firestore");
+
+};
+
+bootstrap();
 
 const AppStackNavigator = createStackNavigator(
   // {headerLayoutPreset: 'center'},

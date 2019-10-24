@@ -22,8 +22,46 @@ import { withNavigation } from 'react-navigation';
 // import { fs } from "../../src/firebase";
 import firestore from '@react-native-firebase/firestore';
 
+// realm local database
+import Realm from 'realm';
+
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
+
+// define models
+
+// IMPLEMENT FOR SSO LIST ANSWERS
+
+// define models
+const Env_List = {
+    name: "Env_List",
+    // id: "string",
+    properties: {
+        id: "string",
+        name: "string",
+        questions: "string[]",
+    }
+}
+
+const SSO_List = {
+    name: "SSO_List",
+    // id: "string",
+    properties: {
+        id: "string",
+        name: "string",
+        questions: "string[]",
+    }
+}
+
+const Env_List_Answers = {
+    name: "Env_List_Answers",
+    // id_list: "string",
+    properties: {
+        id_list: "string",
+        name_list: "string",
+        answers: "bool[]",
+    }
+}
 
 class Specific_List extends Component {
 
@@ -72,7 +110,7 @@ class Specific_List extends Component {
     // send responses to server
     send_responses () {
 
-        console.log("send response new implemenation!");
+        // console.log("send response new implemenation!");
         // create list to send
         const list = {
             id_list: this.props.navigation.state.params.list.id,
@@ -80,76 +118,99 @@ class Specific_List extends Component {
             answers: this.state.answers,
         }
 
-        console.log(this.state.answers);
+        // console.log(this.state.answers);
 
-        // // check internet connection
-        // NetInfo.fetch().then(state => {
-
-        // array for store lists
-        let env_lists = [];
-        
-        // send responses to server
-        // Add a new document with a generated id.
-        // fs.collection("env_lists_responses").add(list)
-        firestore().collection("env_lists_responses").add(list)
-        .then((docRef) => {
-            console.log("Document written with ID: ", docRef.id);
+        // check internet connection
+        NetInfo.fetch().then(state => {
             
-            // check internet connection
-            NetInfo.fetch().then(state => {
+            // if it is connected
+            if (state.isConnected) {
+                console.log("Internet connection detected. Send anwers to server");
+                // send responses to server
+                // Add a new document with a generated id.
+                // fs.collection("env_lists_responses").add(list)
+                firestore().collection("env_lists_responses").add(list)
+                    .then((docRef) => {
+                        console.log("Document written in server with ID: ", docRef.id);
+                        // Works on both iOS and Android
+                        Alert.alert(
+                            'Lista enviada',
+                            'Se han enviado correctamente tus respuestas',
+                            [
+                                { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
+                            ],
+                            { cancelable: false },
+                        );
+                        
+                    })
+                    .catch((error) => {
+                        console.error("Error adding document: ", error);
+                        // Alert message
+                        // Works on both iOS and Android
+                        Alert.alert(
+                            'Error',
+                            'Ha ocurrido un error, porfavor intentálo de nuevo',
+                            [
+                                { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
+                            ],
+                            { cancelable: false },
+                        );
+                    });
+
+            }
+        
+            // if there is not internet connection
+            else {
+        
+                console.log("Whitout internet connection. Storing answer in local DB");
                 
-                // if it is connected
-                if (state.isConnected) {
+                // store in local DB
+                // const realm = Realm.getDefaultInstance()
 
-                    // Works on both iOS and Android
-                    Alert.alert(
-                        'Lista enviada',
-                        'Se han enviado correctamente tus respuestas',
-                        [
-                            { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
-                        ],
-                        { cancelable: false },
-                    );
-                }
+                // console.log(Realm.default.getInstance(this.context));
+                // local DB isntance
 
-                // if there is not internet connection
-                else {
-    
-                    console.log("Sin conexión a internet. Envio postergado hasta nueva conexión");
-    
-                    // Message to user
-                    Alert.alert(
-                        'Envío de respuestas',
-                        'Detectamos que no tienes conexión a internet, por lo que esta respuesta se almacenará en tu teléfono y cuando tengas internet nuevamente se enviará',
-                        [
-                            { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
-                        ],
-                        { cancelable: false },
-                    )
-    
-                }
-                    
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-                // Alert message
+                // const realm = new Realm({ schema: [Env_List_Answers] });
+                const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
+                
+                // try to store in DB
+                // try {
+                // write in db
+                realm.write(() => {
+                    realm.create("Env_List_Answers", list);
+                });
+
+                console.log("Env lists answers after store new answer: ", realm.objects("Env_List_Answers"));
                 // Works on both iOS and Android
                 Alert.alert(
-                    'Error',
-                    'Ha ocurrido un error, porfavor intentálo de nuevo',
+                    'Respuestas por enviar',
+                    'Al parecer no tienes conexión a internet, por que las respuestas se almacenarán en tu dispositivo, y se enviarán automaticamente cuando se detecte conexión a internet',
                     [
-                        { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
+                        { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
                     ],
                     { cancelable: false },
                 );
-            });
+                // }
+                // catch () {
+                //     console.log("Error");
+
+                // }
+                // finally {
+                    // close local BD
+                    // console.log("Closing local DB");
+                    // realm.close();
+                // }
+
+        
+            }
+                
         });
-
+            
     }
-
+        
     componentDidMount() {
-
-        // get length of questions
+            
+            // get length of questions
         const lenght_questions = this.props.navigation.state.params.list.questions.length;
         // array of store answers
         var answers = [];
