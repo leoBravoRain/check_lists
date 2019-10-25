@@ -25,7 +25,7 @@ import firestore from '@react-native-firebase/firestore';
 // realm local database
 import Realm from 'realm';
 // import models of local DB
-import { Env_List, SSO_List, Env_List_Answers, SSO_List_Answers } from "../../models/models";
+import { List, List_Answers } from "../../models/models";
 
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
@@ -118,6 +118,7 @@ class Specific_List extends Component {
             id_list: this.props.navigation.state.params.list.id,
             name_list: this.props.navigation.state.params.list.name,
             answers: this.state.answers,
+            type: this.props.navigation.state.params.category,
         }
 
         // console.log(this.state.answers);
@@ -131,7 +132,8 @@ class Specific_List extends Component {
                 // send responses to server
                 // Add a new document with a generated id.
                 // fs.collection("env_lists_responses").add(list)
-                firestore().collection("env_lists_responses").add(list)
+                // firestore().collection("env_lists_responses").add(list)
+                firestore().collection("answers").add(list)
                     .then((docRef) => {
                         console.log("Document written in server with ID: ", docRef.id);
                         // Works on both iOS and Android
@@ -174,16 +176,18 @@ class Specific_List extends Component {
 
                 // const realm = new Realm({ schema: [Env_List_Answers] });
                 // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
-                const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers, SSO_List_Answers] });
+                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers, SSO_List_Answers] });
+                const realm = new Realm({ schema: [List, List_Answers] });
                 
                 // try to store in DB
                 // try {
                 // write in db
                 realm.write(() => {
-                    realm.create("Env_List_Answers", list);
+                    // realm.create("Env_List_Answers", list);
+                    realm.create("List_Answers", list);
                 });
 
-                console.log("Env lists answers after store new answer: ", realm.objects("Env_List_Answers"));
+                console.log("Lists answers after store new answer: ", realm.objects("List_Answers"));
                 // Works on both iOS and Android
                 Alert.alert(
                     'Respuestas por enviar',

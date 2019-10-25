@@ -172,7 +172,7 @@ class Choose_One_List extends Component {
               data = {this.props.navigation.state.params.lists}
               renderItem={
                   ({item}) => 
-                    <TouchableOpacity onPress={() => this.props.navigation.push("Specific_List", { list: item})}>
+                    <TouchableOpacity onPress={() => this.props.navigation.push("Specific_List", { list: item, category: this.props.navigation.state.params.category})}>
                           <Text>
                               {item.name}
                           </Text>

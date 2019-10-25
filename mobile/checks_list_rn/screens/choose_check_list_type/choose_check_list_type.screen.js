@@ -58,9 +58,9 @@ class Choose_Check_List_Type extends Component {
     super(props);
 
     this.state = {
-      // env_lists: [],
-      // sso_lists: [],
-      lists: [],
+      env_lists: [],
+      sso_lists: [],
+      // lists: [],
       stored_answers: 0,
     };
 
@@ -137,6 +137,7 @@ class Choose_Check_List_Type extends Component {
                   realm.create("List", list);
                 });
 
+                console.log(list);
                 // add item to array
                 // env_lists.push(list);
                 // lists.push(list);
@@ -346,6 +347,7 @@ class Choose_Check_List_Type extends Component {
           for (var key in lists_local) {
             // add item to array depending of type
             element = lists_local[key];
+            console.log(element);
             if (element.type == "env") {
               env_lists.push(element);
             }
@@ -353,11 +355,15 @@ class Choose_Check_List_Type extends Component {
               sso_lists.push(element);
             }
           };
-          // // add lists from local DB to list (for define in state of component)
-          // for (var key in sso_lists_local) {
-          //   // add item to array
-          //   sso_lists.push(sso_lists_local[key]);
-          // };
+          
+          // update state
+          this.setState({
+
+            // lists: lists,
+            env_lists: env_lists,
+            sso_lists: sso_lists,
+
+          });
 
           // console.log("env lists obtained from local database: ", realm.objects("Env_List"));
           // console.log("sso lists obtained from local database: ", realm.objects("SSO_List"));
@@ -407,15 +413,15 @@ class Choose_Check_List_Type extends Component {
       // }
       
       // // update state
-      // this.setState({
+      this.setState({
 
-      //   env_lists: env_lists,
-      //   sso_lists: sso_lists,
-      //   // lists: lists,
-      //   // stored_answers: realm.objects('Env_List_Answers').length,
-      //   stored_answers: realm.objects('List_Answers').length,
+        // env_lists: env_lists,
+        // sso_lists: sso_lists,
+        // lists: lists,
+        // stored_answers: realm.objects('Env_List_Answers').length,
+        stored_answers: realm.objects('List_Answers').length,
 
-      // });
+      });
 
     });
 
@@ -446,13 +452,13 @@ class Choose_Check_List_Type extends Component {
             <Button
             title="Medio Ambiente"
             //   color="#f194ff"
-          onPress={() => this.props.navigation.push("Choose_One_List", { lists: this.state.env_lists})}
+          onPress={() => this.props.navigation.push("Choose_One_List", {category: 'env', lists: this.state.env_lists})}
             />
 
             <Button
             title="SSO"
             //   color="#f194ff"
-          onPress={() => this.props.navigation.push("Choose_One_List", { lists: this.state.sso_lists})}
+          onPress={() => this.props.navigation.push("Choose_One_List", { category: 'sso', lists: this.state.sso_lists})}
             />
 
             <Text>
