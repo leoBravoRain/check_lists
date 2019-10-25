@@ -24,6 +24,8 @@ import firestore from '@react-native-firebase/firestore';
 
 // realm local database
 import Realm from 'realm';
+// import models of local DB
+import { Env_List, SSO_List, Env_List_Answers, SSO_List_Answers } from "../../models/models";
 
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
@@ -32,36 +34,36 @@ import NetInfo from "@react-native-community/netinfo";
 
 // IMPLEMENT FOR SSO LIST ANSWERS
 
-// define models
-const Env_List = {
-    name: "Env_List",
-    // id: "string",
-    properties: {
-        id: "string",
-        name: "string",
-        questions: "string[]",
-    }
-}
+// // define models
+// const Env_List = {
+//     name: "Env_List",
+//     // id: "string",
+//     properties: {
+//         id: "string",
+//         name: "string",
+//         questions: "string[]",
+//     }
+// }
 
-const SSO_List = {
-    name: "SSO_List",
-    // id: "string",
-    properties: {
-        id: "string",
-        name: "string",
-        questions: "string[]",
-    }
-}
+// const SSO_List = {
+//     name: "SSO_List",
+//     // id: "string",
+//     properties: {
+//         id: "string",
+//         name: "string",
+//         questions: "string[]",
+//     }
+// }
 
-const Env_List_Answers = {
-    name: "Env_List_Answers",
-    // id_list: "string",
-    properties: {
-        id_list: "string",
-        name_list: "string",
-        answers: "bool[]",
-    }
-}
+// const Env_List_Answers = {
+//     name: "Env_List_Answers",
+//     // id_list: "string",
+//     properties: {
+//         id_list: "string",
+//         name_list: "string",
+//         answers: "bool[]",
+//     }
+// }
 
 class Specific_List extends Component {
 
@@ -171,7 +173,8 @@ class Specific_List extends Component {
                 // local DB isntance
 
                 // const realm = new Realm({ schema: [Env_List_Answers] });
-                const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
+                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
+                const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers, SSO_List_Answers] });
                 
                 // try to store in DB
                 // try {
