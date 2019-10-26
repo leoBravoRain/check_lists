@@ -69,7 +69,8 @@ class Lists_by_Category extends React.Component {
 
         // get request for get data
         // fs.collection(this.props.match.params.category).get()
-        fs.collection(this.props.match.params.category).get()
+        // fs.collection(this.props.match.params.category).get()
+        fs.collection("list_new_structure").where("type", "==", this.props.match.params.category).get()
 
             .then(snapshotquery => {
                 
@@ -115,11 +116,12 @@ class Lists_by_Category extends React.Component {
     download_responses(id_list, list_name) {
 
         // get request for get data
-        fs.collection(this.props.match.params.category + "_responses").where("id_list", "==", id_list).get()
+        // fs.collection(this.props.match.params.category + "_responses").where("id_list", "==", id_list).get()
+        fs.collection("answers").where("id_list", "==", id_list).get()
 
             .then(snapshotquery => {
 
-                // console.log(snapshotquery);
+                console.log(snapshotquery);
                 // // get data from API
                 
                 // if query is not empty
@@ -141,10 +143,12 @@ class Lists_by_Category extends React.Component {
                     // try to create csv file and download
                     try {
 
+                        console.log("starting try");
+
                         // empty workbook object
                         var wb = XLSX.utils.book_new();
-                        
-                        // console.log(list_name);
+
+                        console.log(wb);
 
                         wb.Props = {
                             Title: list_name,
@@ -160,25 +164,32 @@ class Lists_by_Category extends React.Component {
                         // var ws_data = [['quiero', 'un', 'dron']];  //a row with 2 columns
                         var ws_data = lists;
 
+                        console.log("ws data: ", ws_data);
+
                         // create the sheet from this array
                         var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                        console.log("ws: ", ws);
 
                         // assign sheet to workbook
                         wb.Sheets["Respuestas"] = ws;
 
+                        console.log("befatore wbout");
+
                         // export workbook as xlsx binary
                         var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+                        console.log("wbout: ", wbout);
 
                         function s2ab(s) {
                             var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
                             var view = new Uint8Array(buf);  //create uint8array as viewer
                             for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                            return buf;    
+                            return buf;
                         }
 
                         // $("#button-a").click(function () {
                         saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
-                        // });
 
                         // console.log(wb);
 
@@ -201,7 +212,7 @@ class Lists_by_Category extends React.Component {
                     } 
                     // if there is some error
                     catch (err) {
-                        window.alert("Hemos tenido un problema, inténtalo de nuevo por favor");
+                        window.alert("Hemos tenido un problema al crear y descargar el archivo con las respuestas, inténtalo de nuevo por favor");
                     }
                 }
                 // if query is empty
@@ -214,6 +225,7 @@ class Lists_by_Category extends React.Component {
             // if error
             .catch(function (error) {
 
+                console.log("error!");
                 // dislpay error in console
                 console.log(error);
 
