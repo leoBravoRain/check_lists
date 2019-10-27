@@ -124,8 +124,16 @@ class Lists_by_Category extends React.Component {
                 if (doc.exists) {
 
                     // console.log("Document data:", doc.data());
-                    const questions_text = doc.data().questions;
-
+                    const questions_text = doc.data().user_data;
+                    // console.log(doc.data().user_data);
+                    // console.log(questions_text);
+                    console.log(questions_text);
+                    const questions = doc.data().questions;
+                    for (var i = 0; i < questions.length; ++i) {
+                        questions_text.push(questions[i]);
+                    }
+                    // questions_text.concat(doc.data().questions);
+                    console.log(questions_text);
                     // get answers of list
                     fs.collection("answers").where("id_list", "==", id_list).get()
             
@@ -145,7 +153,8 @@ class Lists_by_Category extends React.Component {
                                 snapshotquery.forEach(doc => {
                                     
                                     // add loteo to list
-                                    answers.push(doc.data().answers);
+                                    answers.push(doc.data().user_data.concat(doc.data().answers));
+                                    // answers.push(doc.data().answers);
                                     // console.log(doc.data().answers);
                                     
                                 });

@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 // RN elements
-import { CheckBox } from 'react-native-elements'
+import { Input } from 'react-native-elements'
 
 import { withNavigation } from 'react-navigation';
 
@@ -66,10 +66,12 @@ class Specific_List extends Component {
 
             // list of answers
             answers: [],
+            user_data: [],
         };
 
         this.send_responses = this.send_responses.bind(this);
         this.change_answer = this.change_answer.bind(this);
+        this.on_change_user_data = this.on_change_user_data.bind(this);
     }
 
     // send responses to server
@@ -81,6 +83,7 @@ class Specific_List extends Component {
         const list = {
             id_list: this.props.navigation.state.params.list.id,
             name_list: this.props.navigation.state.params.list.name,
+            user_data: this.state.user_data,
             answers: this.state.answers,
             type: this.props.navigation.state.params.category,
         }
@@ -185,15 +188,18 @@ class Specific_List extends Component {
         const lenght_questions = this.props.navigation.state.params.list.questions.length;
         // array of store answers
         var answers = [];
+        var user_data = [];
         // crate array of answers
         for (var i = 0; i < lenght_questions; i++) {
             // add automatic answers ("No aplica")
             answers.push("no_aplica");
+            user_data.push("");
         }
 
         // update state
         this.setState({
             answers: answers,
+            user_data: user_data,
         });
 
         // // check internet connection
@@ -264,6 +270,15 @@ class Specific_List extends Component {
 
     }
     
+    on_change_user_data (value, index) {
+        let user_data = this.state.user_data;
+        user_data[index] = value;
+        console.log(user_data);
+        this.setState({
+            user_data: user_data,
+        })
+    }
+
     // change answer
     change_answer (value, index) {
 
@@ -285,6 +300,29 @@ class Specific_List extends Component {
         return (
 
             <View>
+                <Text>
+                    Datos del trabajador
+                </Text>
+                <FlatList
+                    data={this.props.navigation.state.params.list.user_data}
+                    // extraData = {this.state.answers}
+                    renderItem={
+                        ({ item, index }) =>
+                            <View>
+                                <Input
+                                    label = {item}
+                                    onChangeText={text => this.on_change_user_data(text, index)}
+                                    value={this.state.user_data[index]}
+                                    // placeholder= {item}
+                                    // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
+                                />
+                            </View>
+                    }
+                    keyExtractor={(item, index) => { index.toString() }}
+                />
+                <Text>
+                    Items a chequear
+                </Text>
                 <FlatList
                     data={this.props.navigation.state.params.list.questions}
                     // extraData = {this.state.answers}
