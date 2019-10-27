@@ -9,7 +9,8 @@ import {
     //   Image,
     //   ProgressBarAndroid,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    Picker
     // TouchableHighlight,
 } from 'react-native';
 
@@ -29,41 +30,6 @@ import { List, List_Answers } from "../../models/models";
 
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
-
-// define models
-
-// IMPLEMENT FOR SSO LIST ANSWERS
-
-// // define models
-// const Env_List = {
-//     name: "Env_List",
-//     // id: "string",
-//     properties: {
-//         id: "string",
-//         name: "string",
-//         questions: "string[]",
-//     }
-// }
-
-// const SSO_List = {
-//     name: "SSO_List",
-//     // id: "string",
-//     properties: {
-//         id: "string",
-//         name: "string",
-//         questions: "string[]",
-//     }
-// }
-
-// const Env_List_Answers = {
-//     name: "Env_List_Answers",
-//     // id_list: "string",
-//     properties: {
-//         id_list: "string",
-//         name_list: "string",
-//         answers: "bool[]",
-//     }
-// }
 
 class Specific_List extends Component {
 
@@ -98,11 +64,8 @@ class Specific_List extends Component {
         // set states
         this.state = {
 
-            // list of questions
-            // questions: [],
             // list of answers
             answers: [],
-            checked: false,
         };
 
         this.send_responses = this.send_responses.bind(this);
@@ -112,6 +75,7 @@ class Specific_List extends Component {
     // send responses to server
     send_responses () {
 
+        console.log("answers: ", this.state.answers);
         // console.log("send response new implemenation!");
         // create list to send
         const list = {
@@ -121,7 +85,7 @@ class Specific_List extends Component {
             type: this.props.navigation.state.params.category,
         }
 
-        // console.log(this.state.answers);
+        console.log(this.state.answers);
 
         // check internet connection
         NetInfo.fetch().then(state => {
@@ -223,8 +187,8 @@ class Specific_List extends Component {
         var answers = [];
         // crate array of answers
         for (var i = 0; i < lenght_questions; i++) {
-            // add automatic answers (False: 0)
-            answers.push(false);
+            // add automatic answers ("No aplica")
+            answers.push("no_aplica");
         }
 
         // update state
@@ -301,16 +265,17 @@ class Specific_List extends Component {
     }
     
     // change answer
-    change_answer (index) {
-        // update anwers
-        let anwers = this.state.answers;
-        // console.log(anwers[index]);
-        anwers[index] = !anwers[index];
-        // console.log(anwers[index]);
-        // update anwers state
+    change_answer (value, index) {
+
+        console.log(value, index);
+        // get anwers
+        let answers = this.state.answers;
+        // update answer
+        answers[index] = value;
+        // update state
         this.setState({
-            answers: anwers,
-        })
+            answers: answers,
+        });
     }
 
     // Render method
@@ -322,24 +287,28 @@ class Specific_List extends Component {
             <View>
                 <FlatList
                     data={this.props.navigation.state.params.list.questions}
+                    // extraData = {this.state.answers}
                     renderItem={
                         ({ item, index }) =>
                             <TouchableOpacity>
                                 <Text>
                                     {item}
                                 </Text>
-                                <CheckBox
-                                    title='Aplica'
-                                    checked={this.state.answers[index]}
-                                    onPress={() => this.change_answer(index)}
-                                />
+                                <Picker
+                                    selectedValue={this.state.answers[index]}
+                                    style={{ height: 50, width: "100%" }}
+                                    onValueChange={(value) => this.change_answer(value, index)}>
+                                    <Picker.Item label="Cumple" value="cumple" />
+                                    <Picker.Item label="No cumple" value="no_cumple" />
+                                    <Picker.Item label="No aplica" value="no_aplica" />
+                                </Picker>
                             </TouchableOpacity>
                     }
+                    keyExtractor={(item, index) => {index.toString()}}
                 />
 
                 <Button
                     title="Enviar mis respuestas"
-                    //   color="#f194ff"
                     onPress={this.send_responses}
                 />
 
