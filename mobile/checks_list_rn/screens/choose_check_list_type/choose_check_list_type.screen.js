@@ -9,7 +9,8 @@ import {
   Image,
   ProgressBarAndroid,
   FlatList,
-  TouchableOpacity
+  TouchableOpacity,
+  ImageBackground
 } from 'react-native';
 
 // RN elements
@@ -453,7 +454,8 @@ class Choose_Check_List_Type extends Component {
     // return method
     return (
 
-        <View
+        <ImageBackground
+        // source={{ uri: "https://images2.alphacoders.com/598/598441.jpg"}}
           style = {{
             // justifyContent: 'center',
             flexDirection: 'column',
@@ -475,6 +477,13 @@ class Choose_Check_List_Type extends Component {
                 //   color="#f194ff"
                 onPress={() => this.props.navigation.push("Choose_One_List", {category: 'env', lists: this.state.env_lists})}
                 buttonStyle = {styles.button}
+                icon={{
+                  name: "envira",
+                  // size: 15,
+                  color: "white",
+                  type: "font-awesome",
+                  iconStyle: { marginRight: 10 },
+                }}
               />
 
               <Button
@@ -483,6 +492,13 @@ class Choose_Check_List_Type extends Component {
                 //   color="#f194ff"
                 onPress={() => this.props.navigation.push("Choose_One_List", { category: 'sso', lists: this.state.sso_lists})}
                 buttonStyle={styles.button}
+                icon={{
+                  name: "plus-square",
+                  // size: 15,
+                  color: "white",
+                  type: "font-awesome",
+                  iconStyle: { marginRight: 10 },
+                }}
               />
 
               <View
@@ -514,7 +530,7 @@ class Choose_Check_List_Type extends Component {
                 </View>
             }
             
-        </View>
+      </ImageBackground>
 
     );
 
@@ -532,7 +548,7 @@ const styles = StyleSheet.create({
   button: {
     margin: 10,
     height: 50,
-    padding: 35,
+    // padding: 35,
     // fontSize: 40,
     // width: "100%",
     // alignContent: "center",

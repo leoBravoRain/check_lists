@@ -189,7 +189,7 @@ class Choose_One_List extends Component {
               }
             />
           :
-              <Text style = {styles.text}>
+              <Text style = {{margin: 50, fontSize: 20}}>
                 Actualmente no existen listas de esta categoría
               </Text>
           }
@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
+    margin: 10,
   }
 })
 
