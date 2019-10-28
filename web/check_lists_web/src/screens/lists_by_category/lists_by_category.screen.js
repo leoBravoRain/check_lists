@@ -70,7 +70,7 @@ class Lists_by_Category extends React.Component {
         // get request for get data
         // fs.collection(this.props.match.params.category).get()
         // fs.collection(this.props.match.params.category).get()
-        fs.collection("list_new_structure").where("type", "==", this.props.match.params.category).get()
+        fs.collection("lists").where("type", "==", this.props.match.params.category).get()
 
             .then(snapshotquery => {
                 
@@ -117,7 +117,7 @@ class Lists_by_Category extends React.Component {
 
         // get request for get data
         // at first get questions of list
-        fs.collection("list_new_structure").doc(id_list).get()
+        fs.collection("lists").doc(id_list).get()
         
             .then(doc => {
 

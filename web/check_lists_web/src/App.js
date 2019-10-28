@@ -7,6 +7,7 @@ import Choose_List_Type from './screens/choose_list_type/choose_list_type.screen
 import Lists_by_Category from './screens/lists_by_category/lists_by_category.screen';
 import Login from "./screens/login/login.screen";
 import Home from "./screens/home/home.screen";
+import Admin from "./screens/admin/admin.screen";
 
 // material ui
 import theme from './libraries/material-ui/theme';
@@ -115,6 +116,9 @@ class App extends Component {
           <Route path = "/choose_list_type" exact component={Choose_List_Type} />
 
           <Route path = "/lists_by_category/:category/" exact component={Lists_by_Category} />
+
+          {/* special route. It only can be accessed by pointin to its url (not redirecting) */}
+          <Route path="/admin/" exact component={Admin}/>
 
         </Router>
 

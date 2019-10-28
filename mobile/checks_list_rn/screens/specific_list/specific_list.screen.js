@@ -31,11 +31,18 @@ import { List, List_Answers } from "../../models/models";
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
 
-class Specific_List extends Component {
+// import { StackActions, NavigationActions } from 'react-navigation';
 
+// const resetAction = StackActions.reset({
+//     index: 0,
+//     actions: [NavigationActions.navigate({ routeName: 'Choose_Check_List_Type' })],
+// });
+
+class Specific_List extends Component {
+    
     // Options for header bar
     static navigationOptions = ({ navigation }) => {
-
+        
         return {
             title: navigation.state.params.list.name,
             //   headerLeft: null,
@@ -44,86 +51,87 @@ class Specific_List extends Component {
             //       style = {{width: 50, height: 50}}
             //     />,
             // headerStyle: {
-            //   backgroundColor: "#9669AA",
-            //   fontWeight: 20,
-            // },
-            headerTintColor: 'black',
-            //   headerTitleStyle: {
-            //     fontSize: 30,
-            //     fontFamily: "Lobster-Regular"
-            //   },
-
-        };
-    };
-
-    //Constructor
-    constructor(props) {
-
-        super(props);
-
-        // set states
-        this.state = {
-
-            // list of answers
-            answers: [],
-            user_data: [],
-        };
-
-        this.send_responses = this.send_responses.bind(this);
-        this.change_answer = this.change_answer.bind(this);
-        this.on_change_user_data = this.on_change_user_data.bind(this);
-    }
-
-    // send responses to server
-    send_responses () {
-
-        console.log("answers: ", this.state.answers);
-        // console.log("send response new implemenation!");
-        // create list to send
-        const list = {
-            id_list: this.props.navigation.state.params.list.id,
-            name_list: this.props.navigation.state.params.list.name,
-            user_data: this.state.user_data,
-            answers: this.state.answers,
-            type: this.props.navigation.state.params.category,
-        }
-
-        console.log(this.state.answers);
-
-        // check internet connection
-        NetInfo.fetch().then(state => {
+                //   backgroundColor: "#9669AA",
+                //   fontWeight: 20,
+                // },
+                headerTintColor: 'black',
+                //   headerTitleStyle: {
+                    //     fontSize: 30,
+                    //     fontFamily: "Lobster-Regular"
+                    //   },
+                    
+                };
+            };
             
-            // if it is connected
-            if (state.isConnected) {
-                console.log("Internet connection detected. Send anwers to server");
-                // send responses to server
-                // Add a new document with a generated id.
-                // fs.collection("env_lists_responses").add(list)
-                // firestore().collection("env_lists_responses").add(list)
-                firestore().collection("answers").add(list)
-                    .then((docRef) => {
-                        console.log("Document written in server with ID: ", docRef.id);
-                        // Works on both iOS and Android
-                        Alert.alert(
-                            'Lista enviada',
-                            'Se han enviado correctamente tus respuestas',
-                            [
-                                { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
-                            ],
+            //Constructor
+            constructor(props) {
+                
+                super(props);
+                
+                // set states
+                this.state = {
+                    
+                    // list of answers
+                    answers: [],
+                    user_data: [],
+                };
+                
+                this.send_responses = this.send_responses.bind(this);
+                this.change_answer = this.change_answer.bind(this);
+                this.on_change_user_data = this.on_change_user_data.bind(this);
+            }
+            
+            // send responses to server
+            send_responses () {
+                
+                console.log("answers: ", this.state.answers);
+                // console.log("send response new implemenation!");
+                // create list to send
+                const list = {
+                    id_list: this.props.navigation.state.params.list.id,
+                    name_list: this.props.navigation.state.params.list.name,
+                    user_data: this.state.user_data,
+                    answers: this.state.answers,
+                    type: this.props.navigation.state.params.category,
+                }
+                
+                console.log(this.state.answers);
+                
+                // check internet connection
+                NetInfo.fetch().then(state => {
+                    
+                    // if it is connected
+                    if (state.isConnected) {
+                        console.log("Internet connection detected. Send anwers to server");
+                        // send responses to server
+                        // Add a new document with a generated id.
+                        // fs.collection("env_lists_responses").add(list)
+                        // firestore().collection("env_lists_responses").add(list)
+                        firestore().collection("answers").add(list)
+                        .then((docRef) => {
+                            console.log("Document written in server with ID: ", docRef.id);
+                            // Works on both iOS and Android
+                            Alert.alert(
+                                'Lista enviada',
+                                'Se han enviado correctamente tus respuestas',
+                                [
+                                    { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
+                                    // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
+                                ],
                             { cancelable: false },
-                        );
-                        
-                    })
-                    .catch((error) => {
-                        console.error("Error adding document: ", error);
-                        // Alert message
-                        // Works on both iOS and Android
-                        Alert.alert(
-                            'Error',
-                            'Ha ocurrido un error, porfavor intentálo de nuevo',
-                            [
-                                { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
-                            ],
+                            );
+                            
+                        })
+                        .catch((error) => {
+                            console.error("Error adding document: ", error);
+                            // Alert message
+                            // Works on both iOS and Android
+                            Alert.alert(
+                                'Error',
+                                'Ha ocurrido un error, porfavor intentálo de nuevo',
+                                [
+                                    { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
+                                ],
                             { cancelable: false },
                         );
                     });

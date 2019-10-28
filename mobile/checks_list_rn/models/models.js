@@ -6,6 +6,7 @@ export const List = {
         name: "string",
         type: "string",
         questions: "string[]",
+        user_data: "string[]",
     }
 }
 
@@ -16,7 +17,8 @@ export const List_Answers = {
         type: "string",
         id_list: "string",
         name_list: "string",
-        answers: "bool[]",
+        user_data: "string[]",
+        answers: "string[]",
     }
 }
 

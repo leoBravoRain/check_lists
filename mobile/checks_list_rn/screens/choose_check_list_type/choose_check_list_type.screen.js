@@ -69,7 +69,7 @@ class Choose_Check_List_Type extends Component {
 
   componentDidMount() {
 
-    // console.log("Component did mount");
+    console.log("Component did mount");
 
     // check internet connection
     NetInfo.fetch().then(state => {
@@ -97,7 +97,7 @@ class Choose_Check_List_Type extends Component {
           // CHANGE ENV_LIST_NEW_STRUCTURE
           // get lists from server
           // firestore().collection("env_list_new_structure").get().then(snapshotquery => {
-          firestore().collection("list_new_structure").get().then(snapshotquery => {
+          firestore().collection("lists").get().then(snapshotquery => {
 
             // console.log("Update database of ENV");
             console.log("Update database of lists");
@@ -461,8 +461,12 @@ class Choose_Check_List_Type extends Component {
           onPress={() => this.props.navigation.push("Choose_One_List", { category: 'sso', lists: this.state.sso_lists})}
             />
 
-            <Text>
-              Respuestas por enviar: {this.state.stored_answers}
+            <Text style = {{fontSize: 20}}>
+              Respuestas por enviar: {this.state.stored_answers} 
+            </Text>
+
+            <Text style={{ fontSize: 13 }}>
+              Para actualizar este número, debes abrir nuevamente la aplicación
             </Text>
             
         </View>
