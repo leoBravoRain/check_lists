@@ -3,7 +3,7 @@ import {
   Alert,
   // Platform,
   StyleSheet,
-  Button,
+  // Button,
   Text,
   View,
   Image,
@@ -11,6 +11,9 @@ import {
   FlatList,
   TouchableOpacity
 } from 'react-native';
+
+// RN elements
+import { Button } from 'react-native-elements'
 
 import { withNavigation } from 'react-navigation';
 
@@ -58,6 +61,7 @@ class Choose_Check_List_Type extends Component {
     super(props);
 
     this.state = {
+      get_lists: false,
       env_lists: [],
       sso_lists: [],
       // lists: [],
@@ -161,6 +165,7 @@ class Choose_Check_List_Type extends Component {
                 // lists: lists,
                 env_lists: env_lists,
                 sso_lists: sso_lists,
+                get_lists: true,
 
               });
 
@@ -362,6 +367,7 @@ class Choose_Check_List_Type extends Component {
             // lists: lists,
             env_lists: env_lists,
             sso_lists: sso_lists,
+            get_lists: true,
 
           });
 
@@ -447,27 +453,66 @@ class Choose_Check_List_Type extends Component {
     // return method
     return (
 
-        <View>
+        <View
+          style = {{
+            // justifyContent: 'center',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            // alignItems: 'center',
+          }}
+        >
             
-            <Button
-            title="Medio Ambiente"
-            //   color="#f194ff"
-          onPress={() => this.props.navigation.push("Choose_One_List", {category: 'env', lists: this.state.env_lists})}
-            />
+            {this.state.get_lists
+            
+            ?
+              
+              <View>
 
-            <Button
-            title="SSO"
-            //   color="#f194ff"
-          onPress={() => this.props.navigation.push("Choose_One_List", { category: 'sso', lists: this.state.sso_lists})}
-            />
+              <Button
+                title="Medio Ambiente"
+                //   color="#f194ff"
+                onPress={() => this.props.navigation.push("Choose_One_List", {category: 'env', lists: this.state.env_lists})}
+                buttonStyle = {styles.button}
+              />
 
-            <Text style = {{fontSize: 20}}>
-              Respuestas por enviar: {this.state.stored_answers} 
-            </Text>
+              <Button
+                // fontSize = {1000}
+                title="Seguridad y Salud Ocupacional"
+                //   color="#f194ff"
+                onPress={() => this.props.navigation.push("Choose_One_List", { category: 'sso', lists: this.state.sso_lists})}
+                buttonStyle={styles.button}
+              />
 
-            <Text style={{ fontSize: 13 }}>
-              Para actualizar este número, debes abrir nuevamente la aplicación
-            </Text>
+              <View
+                style = {{
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  margin: 50
+                }}
+              >
+
+                <Text style = {styles.text}>
+                  Respuestas por enviar: {this.state.stored_answers} 
+                </Text>
+
+                <Text style={styles.sub_text}>
+                  Para actualizar este número, debes abrir nuevamente la aplicación
+                </Text>
+
+              </View>
+
+              </View>
+            :
+                <View>
+                  <ProgressBarAndroid/>
+                  <Text>
+                    Cargando datos
+                  </Text>
+                </View>
+            }
             
         </View>
 
@@ -478,7 +523,22 @@ class Choose_Check_List_Type extends Component {
 }
 
 const styles = StyleSheet.create({
-
+  text: {
+    fontSize: 25,
+  },
+  sub_text: {
+    fontSize: 13,
+  },  
+  button: {
+    margin: 10,
+    height: 50,
+    padding: 35,
+    // fontSize: 40,
+    // width: "100%",
+    // alignContent: "center",
+    // justifyContent: "center"
+    // backgroundColor: "red"
+  }
 })
 
 // const TabNavigator = createBottomTabNavigator({

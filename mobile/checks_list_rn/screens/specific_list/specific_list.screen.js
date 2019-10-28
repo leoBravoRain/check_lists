@@ -3,7 +3,7 @@ import {
     Alert,
     // Platform,
     //   StyleSheet,
-      Button,
+    //   Button,
     Text,
     View,
     //   Image,
@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 // RN elements
-import { Input } from 'react-native-elements'
+import { Input, Button } from 'react-native-elements'
 
 import { withNavigation } from 'react-navigation';
 
@@ -31,12 +31,14 @@ import { List, List_Answers } from "../../models/models";
 // check net conecction
 import NetInfo from "@react-native-community/netinfo";
 
-// import { StackActions, NavigationActions } from 'react-navigation';
+// import component
+import User_Data from "./components/user_data.component";
 
-// const resetAction = StackActions.reset({
-//     index: 0,
-//     actions: [NavigationActions.navigate({ routeName: 'Choose_Check_List_Type' })],
-// });
+// last part of form
+// 0: user data
+// 1: quesitons
+// 2: send button
+const last_part = 2
 
 class Specific_List extends Component {
     
@@ -74,11 +76,15 @@ class Specific_List extends Component {
                     // list of answers
                     answers: [],
                     user_data: [],
+                    // index of part of form
+                    index: 0,
                 };
                 
                 this.send_responses = this.send_responses.bind(this);
                 this.change_answer = this.change_answer.bind(this);
                 this.on_change_user_data = this.on_change_user_data.bind(this);
+                this.render_switch = this.render_switch.bind(this);
+                this.change_part = this.change_part.bind(this);
             }
             
             // send responses to server
@@ -191,8 +197,8 @@ class Specific_List extends Component {
     }
         
     componentDidMount() {
-            
-            // get length of questions
+        console.log(this.props.navigation.state.params.list.user_data);
+        // get length of questions
         const lenght_questions = this.props.navigation.state.params.list.questions.length;
         // array of store answers
         var answers = [];
@@ -201,9 +207,11 @@ class Specific_List extends Component {
         for (var i = 0; i < lenght_questions; i++) {
             // add automatic answers ("No aplica")
             answers.push("no_aplica");
+        }
+        // crate array of user data answers
+        for (var i = 0; i < this.props.navigation.state.params.list.user_data.length; i++) {
             user_data.push("");
         }
-
         // update state
         this.setState({
             answers: answers,
@@ -301,63 +309,137 @@ class Specific_List extends Component {
         });
     }
 
+    // render parts of form
+    render_switch (index) {
+        switch (index) {
+            // first part
+            case 0:
+                return (
+                   <View>
+                        <Text>
+                            Datos del trabajador
+                        </Text>
+                        <FlatList
+                            data={this.props.navigation.state.params.list.user_data}
+                            // extraData = {this.state.answers}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View>
+                                        <Input
+                                            label={item}
+                                            onChangeText={text => this.on_change_user_data(text, index)}
+                                            value={this.state.user_data[index]}
+                                        // placeholder= {item}
+                                        // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
+                                        />
+                                    </View>
+                            }
+                            keyExtractor={(item, index) => { index.toString() }}
+                        />
+                   </View> 
+                );
+            
+            // second part
+            case 1:
+                return (
+                    <View>
+                        <Text>
+                            Items a chequear
+                        </Text>
+                        <FlatList
+                            style = {{
+                                marginBottom: 50,
+                            }}
+                            data={this.props.navigation.state.params.list.questions}
+                            // extraData = {this.state.answers}
+                            renderItem={
+                                ({ item, index }) =>
+                                <TouchableOpacity>
+                                        <Text>
+                                            {item}
+                                        </Text>
+                                        <Picker
+                                            selectedValue={this.state.answers[index]}
+                                            style={{ height: 50, width: "100%" }}
+                                            onValueChange={(value) => this.change_answer(value, index)}>
+                                            <Picker.Item label="Cumple" value="cumple" />
+                                            <Picker.Item label="No cumple" value="no_cumple" />
+                                            <Picker.Item label="No aplica" value="no_aplica" />
+                                        </Picker>
+                                    </TouchableOpacity>
+                            }
+                            keyExtractor={(item, index) => { index.toString() }}
+                        />
+                    </View>
+                );
+            // 3 screen
+            case 2:
+                return (
+                    <Button
+                        title="Enviar mis respuestas"
+                        onPress={this.send_responses}
+                    />
+                );
+        }
+    }
+
+    // change part of form
+    change_part (next_page) {
+        // console.log(next_page)
+        // update state
+        // console.log(this.state.index);
+        this.setState({
+            index: this.state.index + 1,
+        })
+
+    }
+
     // Render method
     render() {
-
+        
         // return method
         return (
 
-            <View>
-                <Text>
-                    Datos del trabajador
-                </Text>
-                <FlatList
-                    data={this.props.navigation.state.params.list.user_data}
-                    // extraData = {this.state.answers}
-                    renderItem={
-                        ({ item, index }) =>
-                            <View>
-                                <Input
-                                    label = {item}
-                                    onChangeText={text => this.on_change_user_data(text, index)}
-                                    value={this.state.user_data[index]}
-                                    // placeholder= {item}
-                                    // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
-                                />
-                            </View>
-                    }
-                    keyExtractor={(item, index) => { index.toString() }}
-                />
-                <Text>
-                    Items a chequear
-                </Text>
-                <FlatList
-                    data={this.props.navigation.state.params.list.questions}
-                    // extraData = {this.state.answers}
-                    renderItem={
-                        ({ item, index }) =>
-                            <TouchableOpacity>
-                                <Text>
-                                    {item}
-                                </Text>
-                                <Picker
-                                    selectedValue={this.state.answers[index]}
-                                    style={{ height: 50, width: "100%" }}
-                                    onValueChange={(value) => this.change_answer(value, index)}>
-                                    <Picker.Item label="Cumple" value="cumple" />
-                                    <Picker.Item label="No cumple" value="no_cumple" />
-                                    <Picker.Item label="No aplica" value="no_aplica" />
-                                </Picker>
-                            </TouchableOpacity>
-                    }
-                    keyExtractor={(item, index) => {index.toString()}}
-                />
+            <View
+                style = {{
+                    height: "100%",
+                    backgroundColor: "red",
+                }}
+            >
 
-                <Button
-                    title="Enviar mis respuestas"
-                    onPress={this.send_responses}
-                />
+                {this.render_switch(this.state.index)}
 
+                {this.state.index != last_part
+                
+                ?
+                    <Button
+                        buttonStyle = {{
+                            // backgroundColor: "red",
+                            position: "absolute",
+                            bottom: 0,
+                            right: 10
+                        }}
+                        title="Siguiente"
+                        onPress={()=>this.change_part(true)}
+                    />
+                :
+                    null
+                }
+
+                {this.state.index != 0
+                ?
+                    <Button
+                        buttonStyle={{
+                            position: "absolute",
+                            bottom: 10,
+                            right: 10
+                        }}
+                        title="Anterior"
+                        onPress={() => this.change_part(false)}
+                    />
+                :
+                    null
+                }
             </View>
 
         );
