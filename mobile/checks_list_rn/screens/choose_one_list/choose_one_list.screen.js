@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
   Alert,
   // Platform,
-//   StyleSheet,
+  StyleSheet,
 //   Button,
   Text,
   View,
@@ -12,6 +12,8 @@ import {
   TouchableOpacity
     // TouchableHighlight,
 } from 'react-native';
+
+// import { Divider } from 'react-native-elements';
 
 import { withNavigation } from 'react-navigation';
 
@@ -168,17 +170,29 @@ class Choose_One_List extends Component {
 
         <View>
             
+          {this.props.navigation.state.params.lists.length > 0
+          ?
             <FlatList
               data = {this.props.navigation.state.params.lists}
               renderItem={
-                  ({item}) => 
-                    <TouchableOpacity onPress={() => this.props.navigation.push("Specific_List", { list: item, category: this.props.navigation.state.params.category})}>
-                          <Text>
+                  ({item, index}) => 
+                    <TouchableOpacity 
+                      onPress={() => this.props.navigation.push("Specific_List", { list: item, category: this.props.navigation.state.params.category})}
+                      style = {styles.item}  
+                      key={index}
+                    >
+                      <Text style={styles.text}>
                               {item.name}
                           </Text>
-                      </TouchableOpacity>
+                      {/* <Divider style={{ backgroundColor: 'blue' }} />; */}
+                    </TouchableOpacity>
               }
             />
+          :
+              <Text style = {styles.text}>
+                Actualmente no existen listas de esta categoría
+              </Text>
+          }
             
         </View>
 
@@ -187,5 +201,18 @@ class Choose_One_List extends Component {
   }
 
 }
+
+const styles = StyleSheet.create({
+  item: {
+    margin: 15,
+    borderBottomWidth: 1,
+    padding: 20,
+    borderBottomColor: "rgba(14, 20, 27, 0.21)"
+    // borderBo
+  },
+  text: {
+    fontSize: 18,
+  }
+})
 
 export default withNavigation(Choose_One_List);
