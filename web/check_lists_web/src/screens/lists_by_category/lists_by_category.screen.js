@@ -127,33 +127,57 @@ class Lists_by_Category extends React.Component {
                     const questions_text = doc.data().user_data;
                     // console.log(doc.data().user_data);
                     // console.log(questions_text);
-                    console.log(questions_text);
+                    // console.log(questions_text);
                     const questions = doc.data().questions;
                     for (var i = 0; i < questions.length; ++i) {
                         questions_text.push(questions[i]);
+                        // add space to observation
+                        questions_text.push("Observacion " + (i+1));
                     }
                     // questions_text.concat(doc.data().questions);
-                    console.log(questions_text);
+                    // console.log(questions_text);
                     // get answers of list
                     fs.collection("answers").where("id_list", "==", id_list).get()
             
                         .then(snapshotquery => {
             
-                            console.log(snapshotquery);
+                            // console.log(snapshotquery);
                             // // get data from API
                             
                             // if query is not empty
                             if (!snapshotquery.empty) {
-                                
+
+                                // console.log("oasjdioa");
                                 var answers = [];
                                 // add questions as header
                                 answers.push(questions_text);
-                                
+                                // row for concatenate answer with its observation
+                                var row = [];
                                 // iterate over each item
                                 snapshotquery.forEach(doc => {
-                                    
+                                    const len = doc.data().answers.length;
+                                    // console.log(len);
+                                    row = [];
+                                    // row = [doc.data().answers[0], doc.data().answers_observations[0]];
+                                    for (var i = 0; i < len; i++) {
+                                        // console.log("answer data i: ", doc.data().answers[i]);
+                                        // console.log("answer observation i: ", doc.data().answers_observations[i]);
+                                        // let row_tmp = [doc.data().answers[i], doc.data().answers_observations[i]];
+                                        // console.log(row_tmp);
+                                        // row.push(doc.data().user_data);
+                                        row.push(doc.data().answers[i]);
+                                        row.push(doc.data().answers_observations[i])
+                                        // row.concat(row_tmp);
+                                        // row.push(row_tmp);
+                                        // row.push(doc.data().answers[i], doc.data().answers_observations[i]);
+                                        // row.[doc.data().answers[i], doc.data().answers_observations[i]]);
+                                        // console.log("row: ", row);
+                                    }
+                                    console.log("row: ", row);
                                     // add loteo to list
-                                    answers.push(doc.data().user_data.concat(doc.data().answers));
+                                    // answers.push(doc.data().user_data.concat(doc.data().answers));
+                                    // answers.concat(row);
+                                    answers.push(doc.data().user_data.concat(row));
                                     // answers.push(doc.data().answers);
                                     // console.log(doc.data().answers);
                                     
@@ -169,7 +193,7 @@ class Lists_by_Category extends React.Component {
                                     // empty workbook object
                                     var wb = XLSX.utils.book_new();
             
-                                    console.log(wb);
+                                    // console.log(wb);
             
                                     wb.Props = {
                                         Title: list_name,
@@ -185,22 +209,22 @@ class Lists_by_Category extends React.Component {
                                     // var ws_data = [['quiero', 'un', 'dron']];  //a row with 2 columns
                                     var ws_data = answers;
             
-                                    console.log("ws data: ", ws_data);
+                                    // console.log("ws data: ", ws_data);
             
                                     // create the sheet from this array
                                     var ws = XLSX.utils.aoa_to_sheet(ws_data);
             
-                                    console.log("ws: ", ws);
+                                    // console.log("ws: ", ws);
             
                                     // assign sheet to workbook
                                     wb.Sheets["Respuestas"] = ws;
             
-                                    console.log("befatore wbout");
+                                    // console.log("befatore wbout");
             
                                     // export workbook as xlsx binary
                                     var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
             
-                                    console.log("wbout: ", wbout);
+                                    // console.log("wbout: ", wbout);
             
                                     function s2ab(s) {
                                         var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
@@ -212,23 +236,23 @@ class Lists_by_Category extends React.Component {
                                     // $("#button-a").click(function () {
                                     saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
             
-                                    // console.log(wb);
+                                //     // console.log(wb);
             
-                                    // this work for .csv and it can open with libreoffice but not with excel
-                                    // // parser data to csv format
-                                    // const parser = new Parser();
-                                    // const csv = parser.parse(answers);
+                                //     // this work for .csv and it can open with libreoffice but not with excel
+                                //     // // parser data to csv format
+                                //     // const parser = new Parser();
+                                //     // const csv = parser.parse(answers);
             
-                                    // // create csv file
-                                    // let csvContent = "data:text/csv;charset=utf-8," + csv;
-                                    // var encodedUri = encodeURI(csvContent);
-                                    // // create hidden link
-                                    // var link = document.createElement("a");
-                                    // link.setAttribute("href", encodedUri);
-                                    // link.setAttribute("download", list_name + ".csv");
-                                    // document.body.appendChild(link); // Required for FF
-                                    // // This will download the data file named "my_data.csv".
-                                    // link.click();
+                                //     // // create csv file
+                                //     // let csvContent = "data:text/csv;charset=utf-8," + csv;
+                                //     // var encodedUri = encodeURI(csvContent);
+                                //     // // create hidden link
+                                //     // var link = document.createElement("a");
+                                //     // link.setAttribute("href", encodedUri);
+                                //     // link.setAttribute("download", list_name + ".csv");
+                                //     // document.body.appendChild(link); // Required for FF
+                                //     // // This will download the data file named "my_data.csv".
+                                //     // link.click();
             
                                 } 
                                 // if there is some error

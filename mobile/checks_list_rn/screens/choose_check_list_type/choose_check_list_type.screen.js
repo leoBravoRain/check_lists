@@ -292,7 +292,15 @@ class Choose_Check_List_Type extends Component {
                 realm.delete(realm.objects("List_Answers"));
                 // console.log("Answers of env from local DB were deleted from local database because it were sended to server");
                 console.log("Answers from local DB were deleted from local database because it were sended to server");
-                // repeat with sso lists here
+                // send user message
+                Alert.alert(
+                  'Envio automático de listas almacenadas en dispositivo',
+                  'Hemos dectectado conexión a internet, por lo que  hemos enviado las listas sin enviar almacenadas en tu dispositivo. Vuelve a abrir la aplicación para actualizar el número de listas sin enviar',
+                  [
+                      { text: 'Entendido' },
+                    ],
+                    { cancelable: false },
+                )
               });
   
             })

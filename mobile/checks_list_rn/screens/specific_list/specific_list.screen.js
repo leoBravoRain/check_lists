@@ -1,3 +1,5 @@
+console.disableYellowBox = true; 
+
 import React, { Component } from 'react';
 import {
     Alert,
@@ -78,6 +80,8 @@ class Specific_List extends Component {
                     
                     // list of answers
                     answers: [],
+                    // answers observations
+                    answers_observations: [],
                     user_data: [],
                     // index of part of form
                     index: 0,
@@ -107,6 +111,7 @@ class Specific_List extends Component {
                     name_list: this.props.navigation.state.params.list.name,
                     user_data: this.state.user_data,
                     answers: this.state.answers,
+                    answers_observations: this.state.answers_observations,
                     type: this.props.navigation.state.params.category,
                 }
                 
@@ -226,10 +231,12 @@ class Specific_List extends Component {
         // array of store answers
         var answers = [];
         var user_data = [];
+        var answers_observations = [];
         // crate array of answers
         for (var i = 0; i < lenght_questions; i++) {
             // add automatic answers ("No aplica")
             answers.push("no_aplica");
+            answers_observations.push("");
         }
         // crate array of user data answers
         for (var i = 0; i < this.props.navigation.state.params.list.user_data.length; i++) {
@@ -239,6 +246,7 @@ class Specific_List extends Component {
         this.setState({
             answers: answers,
             user_data: user_data,
+            answers_observations: answers_observations,
         });
 
     }
@@ -266,6 +274,22 @@ class Specific_List extends Component {
         });
     }
 
+    // change osbervation of each question
+    on_change_observation (value, index) {
+
+        // console.log(value, index);
+        // get anwers
+        let answers_observations = this.state.answers_observations;
+        console.log(answers_observations);
+        // update answer
+        answers_observations[index] = value;
+        // update state
+        this.setState({
+            answers_observations: answers_observations,
+        });
+
+    }
+    
     // render parts of form
     render_switch (index) {
         switch (index) {
@@ -343,6 +367,13 @@ class Specific_List extends Component {
                                             <Picker.Item label="No cumple" value="no_cumple" />
                                             <Picker.Item label="No aplica" value="no_aplica" />
                                         </Picker>
+                                        <Input
+                                            // label= "Observación"
+                                            onChangeText={text => this.on_change_observation(text, index)}
+                                            value = {this.state.answers_observations[index]}
+                                            placeholder= "Observación"
+                                        // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
+                                        />
                                     </View>
                             }
                             keyExtractor={(item, index) => { index.toString() }}

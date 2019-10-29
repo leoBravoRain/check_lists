@@ -19,6 +19,7 @@ export const List_Answers = {
         name_list: "string",
         user_data: "string[]",
         answers: "string[]",
+        answers_observations: "string[]",
     }
 }
 
