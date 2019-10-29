@@ -20,13 +20,17 @@ import {
 
 // RN elements
 import { Input, Button } from 'react-native-elements'
-import Icon from 'react-native-vector-icons/FontAwesome';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+
+// user signature
+import SignatureCapture from 'react-native-signature-capture';
 
 import { withNavigation } from 'react-navigation';
 
 // import firestore
 // import { fs } from "../../src/firebase";
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 // realm local database
 import Realm from 'realm';
@@ -41,9 +45,10 @@ import User_Data from "./components/user_data.component";
 
 // last part of form
 // 0: user data
-// 1: quesitons
-// 2: send button
-const last_part = 2
+// 1: questions
+// 2: user signature
+// 3: send button
+const last_part = 3
 
 class Specific_List extends Component {
     
@@ -86,6 +91,10 @@ class Specific_List extends Component {
                     // index of part of form
                     index: 0,
                     wait: false,
+                    // wait until sign is stored
+                    wait_store_signature: false,
+                    // sigature (image)
+                    signature: null,
                 };
                 
                 this.send_responses = this.send_responses.bind(this);
@@ -93,134 +102,177 @@ class Specific_List extends Component {
                 this.on_change_user_data = this.on_change_user_data.bind(this);
                 this.render_switch = this.render_switch.bind(this);
                 this.change_part = this.change_part.bind(this);
+                this._onSaveEvent = this._onSaveEvent.bind(this);
+
             }
             
             // send responses to server
             send_responses () {
                 
-                // waiting state
-                this.setState({
-                    wait: true,
-                });
-                
-                console.log("answers: ", this.state.answers);
-                // console.log("send response new implemenation!");
-                // create list to send
-                const list = {
-                    id_list: this.props.navigation.state.params.list.id,
-                    name_list: this.props.navigation.state.params.list.name,
-                    user_data: this.state.user_data,
-                    answers: this.state.answers,
-                    answers_observations: this.state.answers_observations,
-                    type: this.props.navigation.state.params.category,
-                }
-                
-                console.log(this.state.answers);
-                
-                // check internet connection
-                NetInfo.fetch().then(state => {
-                    
-                    // if it is connected
-                    if (state.isConnected) {
-                        console.log("Internet connection detected. Send anwers to server");
-                        // send responses to server
-                        // Add a new document with a generated id.
-                        // fs.collection("env_lists_responses").add(list)
-                        // firestore().collection("env_lists_responses").add(list)
-                        firestore().collection("answers").add(list)
-                        .then((docRef) => {
-                            console.log("Document written in server with ID: ", docRef.id);
-                            // chagen waiting state
-                            this.setState({
-                                wait: false,
-                            });
-                            // Works on both iOS and Android
-                            Alert.alert(
-                                'Lista enviada',
-                                'Se han enviado correctamente tus respuestas',
-                                [
-                                    { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
-                                    // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
-                                ],
-                            { cancelable: false },
-                            );
-                            
-                        })
-                        .catch((error) => {
-                            this.setState({
-                                wait: false,
-                            });
-                            console.error("Error adding document: ", error);
-                            // Alert message
-                            // Works on both iOS and Android
-                            Alert.alert(
-                                'Error',
-                                'Ha ocurrido un error, porfavor intentálo de nuevo',
-                                [
-                                    { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
-                                ],
-                            { cancelable: false },
-                        );
+                // validate information is not empty
+                if (this.state.signature != null) {
+
+                    // console.log("answers: ", this.state.answers);
+                    // console.log("send response new implemenation!");
+
+                    // upadte state to wait
+                    this.setState({
+                        wait: true,
                     });
 
-            }
+                    // upload file
+                    // Create a root reference
+                    // const file_name = this.props.navigation.state.params.list.name + "_" + new Date().getUTCMilliseconds();
+                    const file_name = this.props.navigation.state.params.list.name + "_" + Date.now();
+                    
+                    console.log(file_name);
+                    var storageRef = storage().ref('signatures/' + file_name);
+
+					// store file in firebase store
+                    storageRef.putString(this.state.signature, 'base64').then(snapshot => {
+
+                        // return urldownload
+                        return storageRef.getDownloadURL();
+
+                    })
+                    // if it's ok
+					.then(downloadURL => {
+
+						console.log(`Successfully uploaded file and got download link - ${downloadURL}`);
+                    
+                        // create list to send
+                        const list = {
+                            id_list: this.props.navigation.state.params.list.id,
+                            name_list: this.props.navigation.state.params.list.name,
+                            user_data: this.state.user_data,
+                            answers: this.state.answers,
+                            answers_observations: this.state.answers_observations,
+                            type: this.props.navigation.state.params.category,
+                            signature_img: downloadURL,
+                        }
+                        
+                        console.log("list object to send: ", list);
+                        
+                        // check internet connection
+                        NetInfo.fetch().then(state => {
+                            
+                            // if it is connected
+                            if (state.isConnected) {
+                                console.log("Internet connection detected. Send anwers to server");
+                                // send responses to server
+                                // Add a new document with a generated id.
+                                // fs.collection("env_lists_responses").add(list)
+                                // firestore().collection("env_lists_responses").add(list)
+                                firestore().collection("answers").add(list)
+                                .then((docRef) => {
+                                    console.log("Document written in server with ID: ", docRef.id);
+                                    // chagen waiting state
+                                    this.setState({
+                                        wait: false,
+                                    });
+                                    // Works on both iOS and Android
+                                    Alert.alert(
+                                        'Lista enviada',
+                                        'Se han enviado correctamente tus respuestas',
+                                        [
+                                            { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type")},
+                                            // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
+                                        ],
+                                    { cancelable: false },
+                                    );
+                                    
+                                })
+                                .catch((error) => {
+                                    this.setState({
+                                        wait: false,
+                                    });
+                                    console.error("Error adding document: ", error);
+                                    // Alert message
+                                    // Works on both iOS and Android
+                                    Alert.alert(
+                                        'Error',
+                                        'Ha ocurrido un error, porfavor intentálo de nuevo',
+                                        [
+                                            { text: 'Lo intentaré de nuevo', onPress: () => console.log("Try to send again") },
+                                        ],
+                                        { cancelable: false },
+                                    );
+                                });
         
-            // if there is not internet connection
-            else {
-        
-                console.log("Whitout internet connection. Storing answer in local DB");
+                            }
                 
-                // wait state
-                this.setState({
-                    wait: true,
-                });
-                // store in local DB
-                // const realm = Realm.getDefaultInstance()
-
-                // console.log(Realm.default.getInstance(this.context));
-                // local DB isntance
-
-                // const realm = new Realm({ schema: [Env_List_Answers] });
-                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
-                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers, SSO_List_Answers] });
-                const realm = new Realm({ schema: [List, List_Answers] });
+                            // if there is not internet connection
+                            else {
+                        
+                                console.log("Whitout internet connection. Storing answer in local DB");
+                                
+                                // wait state
+                                this.setState({
+                                    wait: true,
+                                });
+                                // store in local DB
+                                // const realm = Realm.getDefaultInstance()
                 
-                // try to store in DB
-                // try {
-                // write in db
-                realm.write(() => {
-                    // realm.create("Env_List_Answers", list);
-                    realm.create("List_Answers", list);
-                });
-
-                console.log("Lists answers after store new answer: ", realm.objects("List_Answers"));
-                this.setState({
-                    wait: false,
-                });
-                // Works on both iOS and Android
-                Alert.alert(
-                    'Respuestas por enviar',
-                    'Al parecer no tienes conexión a internet, por que las respuestas se almacenarán en tu dispositivo, y se enviarán automaticamente cuando se detecte conexión a internet',
-                    [
-                        { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
-                    ],
-                    { cancelable: false },
-                );
-                // }
-                // catch () {
-                //     console.log("Error");
-
-                // }
-                // finally {
-                    // close local BD
-                    // console.log("Closing local DB");
-                    // realm.close();
-                // }
-
-        
-            }
+                                // console.log(Realm.default.getInstance(this.context));
+                                // local DB isntance
                 
-        });
+                                // const realm = new Realm({ schema: [Env_List_Answers] });
+                                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
+                                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers, SSO_List_Answers] });
+                                const realm = new Realm({ schema: [List, List_Answers] });
+                                
+                                // try to store in DB
+                                // try {
+                                // write in db
+                                realm.write(() => {
+                                    // realm.create("Env_List_Answers", list);
+                                    realm.create("List_Answers", list);
+                                });
+                
+                                console.log("Lists answers after store new answer: ", realm.objects("List_Answers"));
+                                this.setState({
+                                    wait: false,
+                                });
+                                // Works on both iOS and Android
+                                Alert.alert(
+                                    'Respuestas por enviar',
+                                    'Al parecer no tienes conexión a internet, por que las respuestas se almacenarán en tu dispositivo, y se enviarán automaticamente cuando se detecte conexión a internet',
+                                    [
+                                        { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
+                                    ],
+                                    { cancelable: false },
+                                );
+                                // }
+                                // catch () {
+                                //     console.log("Error");
+                
+                                // }
+                                // finally {
+                                    // close local BD
+                                    // console.log("Closing local DB");
+                                    // realm.close();
+                                // }
+                
+                        
+                            }
+                    
+                        });
+                    })
+
+                }
+
+                else {
+                    // Works on both iOS and Android
+                    Alert.alert(
+                        'Falta información',
+                        'Al parecer no has ingresado o confirmado tu firma. Debes hacerlo para poder enviar la lista.',
+                        [
+                            { text: 'Entendido'},
+                            // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
+                        ],
+                        { cancelable: false },
+                    );
+                }
             
     }
         
@@ -290,6 +342,41 @@ class Specific_List extends Component {
 
     }
     
+    // save signature
+    saveSign() {
+        
+        console.log("save sign function");
+
+        // save signature
+        this.refs["sign"].saveImage();
+        // console.log(this.refs["sign"].saveImage);
+        
+        // update wait for store image state
+        this.setState({
+            wait_store_signature: true,
+        })
+    }
+
+    // reset signature canvas
+    resetSign() {
+        console.log("reset sign");
+        this.refs["sign"].resetImage();
+    }
+
+    // event for save image of signature
+    _onSaveEvent(result) {
+        console.log("On save event function!");
+        //result.encoded - for the base64 encoded png
+        //result.pathName - for the file path name
+        console.log(result);
+
+        // update wait for store image state
+        this.setState({
+            wait_store_signature: false,
+            signature: result.encoded,
+        })
+    }
+
     // render parts of form
     render_switch (index) {
         switch (index) {
@@ -298,7 +385,7 @@ class Specific_List extends Component {
                 return (
                    <View>
                         <Text
-                            style={{ marginTop: 20, marginBottom: 20, fontWeight: "bold", fontSize: 20 }}
+                            style={styles.text_title}
                         >
                             Datos del trabajador
                         </Text>
@@ -327,7 +414,7 @@ class Specific_List extends Component {
                 return (
                     <View>
                         <Text
-                            style={{ marginTop: 20, marginBottom: 20, fontWeight: "bold", fontSize: 20 }}
+                            style={styles.text_title}
                         >
                             Items a chequear
                         </Text>
@@ -371,7 +458,7 @@ class Specific_List extends Component {
                                             // label= "Observación"
                                             onChangeText={text => this.on_change_observation(text, index)}
                                             value = {this.state.answers_observations[index]}
-                                            placeholder= "Observación"
+                                            placeholder= "Observación (opcional)"
                                         // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
                                         />
                                     </View>
@@ -380,8 +467,69 @@ class Specific_List extends Component {
                         />
                     </View>
                 );
-            // 3 screen
+            // user signature
             case 2:
+                return (
+                    <View
+                    // style = {{
+                        //     // backgroundColor: "red",
+                        //     height: "80%",
+                        //     // borderColor: "red",
+                        //     // borderWidth: 1
+                        // }}
+                        >
+
+                        <Text style={styles.text_title}>
+                            Agrega tu firma
+                        </Text>
+                        <Text style = {[styles.text, {fontSize: 13, margin: 10}]}>
+                            Debes confirmar la firma antes de continuar, o si no no se guardará
+                        </Text>
+                        <View
+                            style = {{
+                                flex: 1,
+                                flexDirection: "row",
+                                justifyContent: "center",
+                                margin: 15,
+                            }}
+                        >
+                            <Button
+                                title="Reiniciar firma"
+                                onPress={()=>this.resetSign()}
+                                buttonStyle = {styles.signature_buttons}
+                            />
+                            <Button
+                                title="Confirmar firma"
+                                onPress={() => this.saveSign()}
+                                buttonStyle = {[styles.signature_buttons, {backgroundColor: "green"}]}
+                            />
+                        </View>
+                        <View
+                            style = {{
+                                borderWidth: 1,
+                                borderColor: "gray",
+                                height: "60%",
+                                margin: 5,
+                                // backgroundColor: "red"
+                            }}                            
+                        >
+                            <SignatureCapture
+                                style={[{ flex: 1 }, styles.signature]}
+                                ref="sign"
+                                onSaveEvent={this._onSaveEvent}
+                                // onDragEvent={this._onDragEvent}
+                                saveImageFileInExtStorage={false}
+                                showNativeButtons={false}
+                                showTitleLabel={false}
+                                viewMode={"portrait"} 
+                            />
+                            
+                        </View>
+                    </View>
+                )
+                
+            // 3 screen
+            case 3:
                 return (
                     <Button
                         title="Enviar mis respuestas"
@@ -403,6 +551,31 @@ class Specific_List extends Component {
 
     // change part of form
     change_part (next_page) {
+        // save image if it's in the signature part
+        // change value of index (actually 2 is the signature part)
+        // if (this.state.index == 2) {
+            // console.log("new save sign");
+            // // update wait for store image state
+            // this.setState({
+            //     wait_store_signature: true,
+            // })
+            // // this.saveSign();
+            // this.refs["sign"].saveImage();
+            // console.log("before while");
+            // while (this.state.wait_store_signature) {
+            //     console.log("waiting");
+            // }
+            // console.log("stop watiing");
+            // this.setState({
+            //     index: next_page ? this.state.index + 1 : this.state.index - 1,
+            // })
+        // }
+
+        // else {
+        //     this.setState({
+        //         index: next_page ? this.state.index + 1 : this.state.index - 1,
+        //     })
+        // };
         // console.log(next_page)
         // update state
         // console.log(this.state.index);
@@ -434,45 +607,58 @@ class Specific_List extends Component {
                 ?
 
                     <View>
-                    {this.render_switch(this.state.index)}
 
-                    {this.state.index != last_part
-                    
-                    ?
-                        <Button
-                            iconRight = {true}
-                            icon={{
-                                name: "arrow-right",
-                                color: "white",
-                                type: "font-awesome",
-                                size: 15,
-                                iconStyle: { marginLeft: 20 }
-                            }}
-                            buttonStyle = {styles.next_button}
-                            title="Siguiente"
-                            onPress={()=>this.change_part(true)}
-                        />
-                    :
-                        null
-                    }
+                        {this.render_switch(this.state.index)}
 
-                    {this.state.index != 0
-                    ?
-                        <Button
-                            icon={{
-                                name: "arrow-left",
-                                size: 15,
-                                color: "white",
-                                type: "font-awesome",
-                                    iconStyle: { marginRight: 20 },
+                        <View
+                            style = {{
+                                flex: 1,
+                                flexDirection: "row",
+                                justifyContent: "center"
                             }}
-                            buttonStyle={styles.next_button}
-                            title="Anterior"
-                            onPress={() => this.change_part(false)}
-                        />
-                    :
-                        null
-                    }
+                        >
+
+                            {this.state.index != 0 && !this.state.wait_store_signature
+                            
+                                ?
+                                    <Button
+                                        icon={{
+                                            name: "arrow-left",
+                                            size: 15,
+                                            color: "white",
+                                            type: "font-awesome",
+                                                iconStyle: { marginRight: 20 },
+                                        }}
+                                        buttonStyle={styles.next_button}
+                                        title = "Anterior"
+                                        onPress={() => this.change_part(false)}
+                                    />
+                                :
+                                    null
+                            }
+
+                            {this.state.index != last_part && !this.state.wait_store_signature
+
+                                ?
+
+                                    <Button
+                                        iconRight = {true}
+                                        icon={{
+                                            name: "arrow-right",
+                                            color: "white",
+                                            type: "font-awesome",
+                                            size: 15,
+                                            iconStyle: { marginLeft: 20 }
+                                        }}
+                                        buttonStyle = {styles.next_button}
+                                        title="Siguiente"
+                                        onPress={()=>this.change_part(true)}
+                                    />
+                                :
+                                    null
+                            }
+
+                        </View>
 
                     </View>
                 :
@@ -504,6 +690,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "rgba(14, 20, 27, 1)",
     },
+    text_title: {
+        marginTop: 20, 
+        marginBottom: 20, 
+        fontWeight: "bold", 
+        fontSize: 20, 
+    },
     text: {
         fontSize: 25,
     },
@@ -521,7 +713,7 @@ const styles = StyleSheet.create({
         // backgroundColor: "red"
     },
     next_button: {
-        margin: 10,
+        margin: 20,
         // position: "relative",
         // bottom: 10,
         // right: 10
@@ -532,6 +724,15 @@ const styles = StyleSheet.create({
         // fontWeight: "bold",
         // backgroundColor: "red",
         height: 80,
+    },
+    signature: {
+        flex: 1,
+        // borderColor: '#000033',
+        // borderColor: "blue",
+        // borderWidth: 10,
+    },
+    signature_buttons: {
+        margin: 10,
     }
 })
 
