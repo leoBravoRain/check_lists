@@ -310,13 +310,13 @@ class Lists_by_Category extends React.Component {
 
                     <Typography align="center" variant="h4" component="h2" gutterBottom>
 
-                        Listas respondidas por usuarios
+                        Listas de chequeo {this.props.match.params.category == "env" ? "medio ambiente" : "sso"}
 
                     </Typography>
 
                     <Typography align="center" variant="body2" component="p" gutterBottom>
 
-                        Acá se muestran solo las listas que han sido respondidas por los usuario
+                        Acá se muestran todas las listas de {this.props.match.params.category == "env" ? "medio ambiente" : "sso"} que tienes registradas en el sistema
 
                     </Typography>
 
@@ -348,22 +348,33 @@ class Lists_by_Category extends React.Component {
 
                                 ?
 
-                                this.state.lists.map((list, idx) =>
+                                    this.state.lists.length > 0
+                                    
+                                        ?
+                                        
+                                        this.state.lists.map((list, idx) =>
+        
+                                            <TableRow key={idx+1}>
+        
+                                                <TableCell> {idx+1} </TableCell>
+        
+                                                <TableCell> {list.name} </TableCell>
+        
+                                                <TableCell> 
+                                                    <Button align="center" variant="contained" color="primary" onClick = {() => this.download_responses(list.id, list.name)}>
+                                                        Descargar
+                                                    </Button>
+                                                </TableCell>
+        
+                                            </TableRow>
+                                        )
+                                        :
 
-                                    <TableRow key={idx}>
+                                            <Typography align="center" variant="body2" component="body2" gutterBottom>
 
-                                        <TableCell> {idx} </TableCell>
+                                                Actualmente no existen listas de este tipo
 
-                                        <TableCell> {list.name} </TableCell>
-
-                                        <TableCell> 
-                                            <Button align="center" variant="contained" color="primary" onClick = {() => this.download_responses(list.id, list.name)}>
-                                                Descargar respuestas
-                                            </Button>
-                                        </TableCell>
-
-                                    </TableRow>
-                                )
+                                            </Typography>
 
                                 :
 

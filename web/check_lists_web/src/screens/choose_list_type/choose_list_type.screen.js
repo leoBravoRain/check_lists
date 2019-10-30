@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
 import { Button } from "@material-ui/core";
+import Typography from '@material-ui/core/Typography';
 
 import {auth} from "../../libraries/firebase/firebase";
 
@@ -47,19 +48,44 @@ class Choose_List_Type extends React.Component {
                     padding: 20,
                 }}
             >
-                <Container>
+                <Container
+                    style = {{
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
 
-                    <Link to="/lists_by_category/env">
-                        <Button align="center" variant="contained" color="primary">
-                            Listas de Medio Ambiente
-                        </Button>
-                    </Link>
+                    <Typography align="center" variant="h4" component="h4" gutterBottom>
+                        Escoger tipo de lista
+                    </Typography>
 
-                    <Link to="/lists_by_category/sso">
-                        <Button align="center" variant="contained" color="primary">
-                            Listas de SSO
-                        </Button>
-                    </Link>
+                    <Typography align="center" variant="body2" component="p" gutterBottom>
+                        Debes escoger algún tipo de lista que tienes registrado en el sistema
+                    </Typography>
+                    
+                    <Container
+                        style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            // backgroundColor: "red",
+                            // alignContent: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+
+                        <Link to="/lists_by_category/env" style = {{textDecoration: "none"}}>
+                            <Button align="center" variant="contained" color="primary">
+                                Listas de Medio Ambiente
+                            </Button>
+                        </Link>
+
+                        <Link to="/lists_by_category/sso" style={{ textDecoration: "none"}}>
+                            <Button align="center" variant="contained" color="primary">
+                                Listas de SSO
+                            </Button>
+                        </Link>
+
+                    </Container>
 
                 </Container>
             </Paper>

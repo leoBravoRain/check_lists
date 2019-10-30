@@ -8,6 +8,7 @@ import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import { Button } from "@material-ui/core";
 import FormControl from '@material-ui/core/FormControl';
+import Typography from '@material-ui/core/Typography';
 
 // firebase
 import { auth } from "../../libraries/firebase/firebase";
@@ -90,11 +91,28 @@ class Login extends React.Component {
                     padding: 20,
                 }}
             >
-                <Container>
+                <Container
+                    style = {{
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
 
-                    Login
+                    <Typography align="center" variant="h4" component="h4" gutterBottom>
+                        Ingresar a plataforma
+                    </Typography>
+
+                    <Typography align="center" variant="body2" component="p" gutterBottom>
+                        Para acceder a la plataforma debes ingresar el correo y contraseña registrados en este sistema
+                    </Typography>
+
  
-                    <FormControl>
+                    <FormControl
+                        style = {{
+                            width: "50%",
+                            alignSelf: "center",
+                        }}
+                    >
 
                         <TextField
                             id="standard-uncontrolled"
@@ -120,6 +138,10 @@ class Login extends React.Component {
                         </Button>
 
                     </FormControl>
+
+                    <Typography align="center" variant="body2" component="p" gutterBottom>
+                        Si no recuerdas la información, ponte en contacto con los administradores de la plataforma
+                    </Typography>
 
                 </Container>
             </Paper>

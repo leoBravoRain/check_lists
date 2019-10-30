@@ -15,48 +15,63 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 
 // firebase
 import { auth } from "./libraries/firebase/firebase";
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
+}));
+
+
 // Component 
 class App extends Component {
-
+  
+  
   // constructor
   constructor(props) {
-
+    
     // constructur of parent
     super(props);
-
+    
     this.on_logout = this.on_logout.bind(this);
-
+    
   };
   
   on_logout() {
-
+    
     // logout
     auth.signOut().then(res => {
-
+      
       // console.log("loogut");
       // console.log(this);
-
+      
       // window.redirect(window.location.host)
       // window.location = "/";
       // this.props.history.push('');
-
+      
     }).catch(error => {
-
+      
       console.log(error);
-
+      
     });
-
+    
   }
   
   // render method
   render() {
-
+    
     return (
-
+      
       <MuiThemeProvider theme={theme}>
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
@@ -67,15 +82,21 @@ class App extends Component {
             position="static"
           >
 
-            <Toolbar>
+            <Toolbar 
+              style = {{
+                display: "flex",
+                justifyContent: "space-between",
+
+          }}
+        >
 
               <Typography gutterBottom variant="h3" component="h3">
 
-                Check lists
+                Listas de chequeo
 
               </Typography>
 
-              <Link to="/" className="nav-link">
+              <Link to="/" style={{ textDecoration: "none", marginLeft: 2}}>
 
                 <Typography gutterBottom variant="h6" component="h6">
 
@@ -85,7 +106,7 @@ class App extends Component {
 
               </Link>
 
-              <Link to="/choose_list_type" className="nav-link">
+              <Link to="/choose_list_type" className="nav-link" style={{ textDecoration: "none" }}>
 
                 <Typography gutterBottom variant="h6" component="h6">
 
@@ -95,7 +116,7 @@ class App extends Component {
 
               </Link>
 
-              <Link className="nav-link">
+              <Link className="nav-link" style={{ textDecoration: "none" }}>
 
                 <Typography gutterBottom variant="h6" component="h6" onClick={this.on_logout}>
 
