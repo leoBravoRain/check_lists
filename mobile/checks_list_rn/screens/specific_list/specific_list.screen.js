@@ -426,6 +426,7 @@ class Specific_List extends Component {
                             Datos del trabajador
                         </Text>
                         <FlatList
+                            style={styles.flat_list}
                             data={this.props.navigation.state.params.list.user_data}
                             // extraData = {this.state.answers}
                             renderItem={
@@ -712,7 +713,7 @@ class Specific_List extends Component {
 
 const styles = StyleSheet.create({
     flat_list: {
-        height: "65%",
+        height: "75%",
         // paddingBottom: 50,
         // backgroundColor: "red"
     },
