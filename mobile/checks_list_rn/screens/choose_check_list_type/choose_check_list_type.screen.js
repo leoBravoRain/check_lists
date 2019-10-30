@@ -26,6 +26,7 @@ import NetInfo from "@react-native-community/netinfo";
 
 // import firestore
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 // import models of local DB
 import { List, List_Answers} from "../../models/models";
@@ -69,7 +70,6 @@ class Choose_Check_List_Type extends Component {
       stored_answers: 0,
     };
 
-    // this.select_color = this.select_color.bind(this);
   }
 
   componentDidMount() {
@@ -95,11 +95,6 @@ class Choose_Check_List_Type extends Component {
           console.log("Internet connection was detected");
           // query to firestore
 
-          // ERROR WHEN BOTH ENV AND SSO are trying to write to local database
-          
-          // Env lists
-
-          // CHANGE ENV_LIST_NEW_STRUCTURE
           // get lists from server
           // firestore().collection("env_list_new_structure").get().then(snapshotquery => {
           firestore().collection("lists").get().then(snapshotquery => {
@@ -111,19 +106,12 @@ class Choose_Check_List_Type extends Component {
             // update local database. 1) remove prior database 2) write new database
             if (!snapshotquery.empty) {
 
+              // define list
               let list;
-
-              // new instance of database
-              // const realm = new Realm({ schema: [Env_List] });
-
-              // console.log("query: ", realm.objects("Env_List"));
 
               // delete previous data
               realm.write(() => {
-                // realm.deleteAll()
-                // realm.delete(realm.objects("Env_List"));
                 realm.delete(realm.objects("List"));
-
               })
 
               // console.log("query: ", realm.objects("List"));
@@ -182,182 +170,155 @@ class Choose_Check_List_Type extends Component {
 
           });
 
-          // SSO lists
-          // CHANGE SSO_LIST_NEW_STRUCTURE
-          // get lists from server
-          // firestore().collection("sso_list_new_structure").get().then(snapshotquery => {
-          //   console.log("Update database of SSO");
-
-          //   // if query is not empty
-          //   // update local database. 1) remove prior database 2) write new database
-          //   if (!snapshotquery.empty) {
-
-          //     let list;
-
-          //     // new instance of database
-          //     // const realm = new Realm({ schema: [SSO_List] });
-
-          //     // console.log("query: ", realm.objects("SSO_List"));
-
-          //     // delete previous data
-          //     realm.write(() => {
-          //       // realm.deleteAll()
-          //       realm.delete(realm.objects("SSO_List"));
-          //     })
-
-          //     // console.log("query: ", realm.objects("List"));
-
-          //     // iterate over each item
-          //     snapshotquery.forEach(doc => {
-
-          //       // get document
-          //       list = doc.data();
-          //       // add id
-          //       list["id"] = doc.id;
-
-          //       // write in db
-          //       realm.write(() => {
-          //         realm.create("SSO_List", list);
-          //       });
-
-          //       // // add item to array
-          //       sso_lists.push(list);
-
-          //     });
-
-          //     // console.log(env_lists);
-
-          //     console.log("sso lists updated: ", realm.objects("SSO_List"));
-
-          //     console.log("Finish update database of SSO");
-
-          //     // // update state
-          //     // this.setState({
-
-          //     //   sso_lists: list,
-
-          //     // });
-
-          //   }
-
-          //   // if query is empty
-          //   else {
-
-          //     // doc.data() will be undefined in this case
-          //     console.log("No such document!");
-
-          //   }
-
-          // });
-
-
           // get stored anwsers and send to server
 
           // create local DB instance
-          // const env_list_anwers = realm.objects('Env_List_Answers');
-          // const sso_list_anwers = realm.objects('SSO_List_Answers');
           const list_anwers = realm.objects('List_Answers');
-
-          // For Env Lists (This could be refactorized)
 
           // check if there is answers
           // if (!(Object.keys(env_list_anwers).length === 0)) {
           if (!(Object.keys(list_anwers).length === 0)) {
             // console.log("Anwsers of env without send were detected. Try to send to server")
             console.log("Anwsers without send were detected. Try to send to server")
-            // create batch (do multiple operation once time and all together)
-            let batch = firestore().batch();
-            // ref of firestore db
-            let ref;
+            // // create batch (do multiple operation once time and all together)
+            // let batch = firestore().batch();
+            // // ref of firestore db
+            // let ref;
             // iterate throught each answer
             // for (var key in env_list_anwers) {
             for (var key in list_anwers) {
-              // console.log(env_list_anwers[key]);
-              // Create ref (for craete an auto-ID in firesotre)
-              // ref = firestore().collection('env_lists_responses').doc();
-              ref = firestore().collection('answers').doc();
-              // add new doc to batch
-              // batch.set(ref, env_list_anwers[key]);// Batch has a limit of 500 element !!
-              batch.set(ref, list_anwers[key]);// Batch has a limit of 500 element !!
+              // upload file to storage
+              console.log("For cicle with key: ", key);
+              // var local_list = list_anwers[key];
+              // const ref = storage().ref('signatures/' + list_anwers[key].name_list).putFile(list_anwers[key].signature_img);
+              // let downloadUrl = storage().ref(list_anwers[key].name_list).getDownloadURL();
+              var storageRef = storage().ref('signatures/' + 'test.png');
+
+              // store file in firebase store
+              storageRef.putFile(list_anwers[key].signature_img).then(snapshot => {
+                
+                console.log("store file");
+
+                // return urldownload
+                return storageRef.getDownloadURL();
+
+              })
+                .then(downloadURL => {
+                  console.log(`Successfully uploaded file and got download link - ${downloadURL}`);
+                  console.log("befoyre modify signature image");
+                  // update signature url
+                  var local_list = list_anwers[key];
+                  // local_list["signature_img"] = downloadURL;
+                  // create list to send
+                  const local_list_2 = {
+                    id_list: local_list.id_list,
+                    name_list: local_list.name_list,
+                    user_data: local_list.user_data,
+                    answers: local_list.answers,
+                    answers_observations: local_list.answers_observations,
+                    type: local_list.type,
+                    signature_img: downloadURL,
+                  }
+                  console.log("after overwrite signature img");
+                  firestore().collection("answers").add(local_list_2)
+
+                    .then((docRef) => {
+                      console.log("Document written in server with ID: ", docRef.id);
+
+                      // delete list from local DB
+                      realm.write(() => {
+                        console.log("trying to delete list from local BD");
+                        // delete all env lists anwsers of local DB
+                        // realm.delete(realm.objects("Env_List_Answers"));
+                        realm.delete(list_anwers[key]);
+                        console.log("Delete list from local BD");
+                        
+                      });
+                      // chagen waiting state
+                      // this.setState({
+                      //   wait: false,
+                      // });
+                      // Works on both iOS and Android
+                      // Alert.alert(
+                      //   'Lista enviada',
+                      //   'Se han enviado correctamente tus respuestas',
+                      //   [
+                      //     { text: 'Entendido'},
+                      //     // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
+                      //   ],
+                      //   { cancelable: false },
+                      // );
+
+                    })
+                    .catch((error) => {
+                      // this.setState({
+                      //   wait: false,
+                      // });
+                    //   console.error("Error adding document: ", error);
+                      // Alert message
+                      // Works on both iOS and Android
+                      Alert.alert(
+                        'Error',
+                        'Ha ocurrido un error, porfavor vuelve a abrir la aplicación y asegúrate de tener buena señal de internet.',
+                        [
+                          { text: 'Lo intentaré de nuevo'},
+                        ],
+                        { cancelable: false },
+                      );
+                    });
+
+                });
+              // // console.log(env_list_anwers[key]);
+              // // Create ref (for craete an auto-ID in firesotre)
+              // // ref = firestore().collection('env_lists_responses').doc();
+              // ref = firestore().collection('answers').doc();
+              // // add new doc to batch
+              // // batch.set(ref, env_list_anwers[key]);// Batch has a limit of 500 element !!
+              // batch.set(ref, list_anwers[key]);// Batch has a limit of 500 element !!
             }
-            // execute batch (if there is an error with any doc, so the full batch is not executed)
-            batch.commit().then(()=> {
-              // if batch was executed correctly
-              // console.log("Stored answers of env were sended to server");
-              console.log("Stored answers were sended to server");
-              // delete answers
-              realm.write(() => {
-                // delete all env lists anwsers of local DB
-                // realm.delete(realm.objects("Env_List_Answers"));
-                realm.delete(realm.objects("List_Answers"));
-                // console.log("Answers of env from local DB were deleted from local database because it were sended to server");
-                console.log("Answers from local DB were deleted from local database because it were sended to server");
-                // send user message
-                Alert.alert(
-                  'Envio automático de listas almacenadas en dispositivo',
-                  'Hemos dectectado conexión a internet, por lo que  hemos enviado las listas sin enviar almacenadas en tu dispositivo. Vuelve a abrir la aplicación para actualizar el número de listas sin enviar',
-                  [
-                      { text: 'Entendido' },
-                    ],
-                    { cancelable: false },
-                )
-              });
+            // // execute batch (if there is an error with any doc, so the full batch is not executed)
+            // batch.commit().then(()=> {
+            //   // if batch was executed correctly
+            //   // console.log("Stored answers of env were sended to server");
+            //   console.log("Stored answers were sended to server");
+            //   // delete answers
+            //   realm.write(() => {
+            //     // delete all env lists anwsers of local DB
+            //     // realm.delete(realm.objects("Env_List_Answers"));
+            //     realm.delete(realm.objects("List_Answers"));
+            //     // console.log("Answers of env from local DB were deleted from local database because it were sended to server");
+            //     console.log("Answers from local DB were deleted from local database because it were sended to server");
+            //     // send user message
+            //     Alert.alert(
+            //       'Envio automático de listas almacenadas en dispositivo',
+            //       'Hemos dectectado conexión a internet, por lo que  hemos enviado las listas sin enviar almacenadas en tu dispositivo. Vuelve a abrir la aplicación para actualizar el número de listas sin enviar',
+            //       [
+            //           { text: 'Entendido' },
+            //         ],
+            //         { cancelable: false },
+            //     )
+            //   });
   
-            })
+            // })
           }
 
           // if there is not answers in local database
           else {
             console.log("There is not answers in DB yet");
           }
-
-          // // check if there is answers
-          // if (!(Object.keys(sso_list_anwers).length === 0)) {
-          //   console.log("Anwsers of SSO without send were detected. Try to send to server")
-          //   // create batch (do multiple operation once time and all together)
-          //   let batch = firestore().batch();
-          //   // ref of firestore db
-          //   let ref;
-          //   // iterate throught each answer
-          //   for (var key in sso_list_anwers) {
-          //     // console.log(sso_list_anwers[key]);
-          //     // Create ref (for craete an auto-ID in firesotre)
-          //     ref = firestore().collection('sso_lists_responses').doc();
-          //     // add new doc to batch
-          //     batch.set(ref, sso_list_anwers[key]);// Batch has a limit of 500 element !!
-          //   }
-          //   // execute batch (if there is an error with any doc, so the full batch is not executed)
-          //   batch.commit().then(() => {
-          //     // if batch was executed correctly
-          //     console.log("Stored answers of sso were sended to server");
-          //     // delete answers
-          //     realm.write(() => {
-          //       // delete all env lists anwsers of local DB
-          //       realm.delete(realm.objects("SSO_List_Answers"));
-          //       console.log("List_Answers of SSO from local DB were deleted from local database because it were sended to server");
-          //       // repeat with sso lists here
-          //     });
-
-          //   })
-          // }
-          // // if there is not answers in local database
-          // else {
-          //   console.log("There is not answers of SSO in DB yet");
-          // }
           
         }
         // it isn't connected to internet
         else {
+
           console.log("There is not internet connection. Using local database to get list and their questions");
 
           // get lists from local DB
-          // const env_lists_local = realm.objects("Env_List");
-          // const sso_lists_local = realm.objects("SSO_List");
           const lists_local = realm.objects("List");
 
           // add lists from local DB to list (for define in state of component)
-          // for (var key in env_lists_local) {
           let element;
+          // iterate through each list
           for (var key in lists_local) {
             // add item to array depending of type
             element = lists_local[key];
@@ -380,79 +341,18 @@ class Choose_Check_List_Type extends Component {
 
           });
 
-          // console.log("env lists obtained from local database: ", realm.objects("Env_List"));
-          // console.log("sso lists obtained from local database: ", realm.objects("SSO_List"));
+          // log messages
           console.log("lists obtained from local database: ", realm.objects("List"));
-          // // console.log("query: ", realm.objects("SSO_List"));
-          // console.log("env lists answers obtained from local database: ", realm.objects('Env_List_Answers'));
-          // console.log("sso lists answers obtained from local database: ", realm.objects('SSO_List_Answers'));
-          // console.log(env_lists);
           console.log("lists answers obtained from local database: ", realm.objects('List_Answers'));
           
-          
-          // // Message to user
-          // Alert.alert(
-            //   'Ups, tenemos problemas con la conexión a Internet',
-            //   'Necesitamos conectarnos a Internet y al parecer no tienes conexión',
-            //   [
-              //     { text: 'Me conectaré' },
-              //   ],
-              //   { cancelable: false },
-              // )
-              
         };
 
-      // }
-
-      // finally {
-        // console.log("Close local DB");
-        // realm.close();
-      // }
-
-      // // array for store lists
-      // let env_lists = [];
-      // let sso_lists = [];
-      // // let lists = [];
-
-      // console.log("final lists: ", lists);
-
-      // // create separated lists
-      // for (let i = 0; i < lists.length; ++i) {
-      //   if (lists[i].type == "env") {
-      //     env_lists.push(lists[i]);
-      //   }
-
-      //   else if (lists[i].type == "sso") {
-      //     sso_lists.push(lists[i]);
-      //   }
-      // }
-      
-      // // update state
+      // update state
       this.setState({
-
-        // env_lists: env_lists,
-        // sso_lists: sso_lists,
-        // lists: lists,
-        // stored_answers: realm.objects('Env_List_Answers').length,
         stored_answers: realm.objects('List_Answers').length,
-
       });
 
     });
-
-    // console.log("realm: ", Realm);
-
-    // // new isntance of database
-    // const realm = new Realm({ schema: [List] });
-
-    // console.log("query: ", realm.objects("List"));
-
-    // // write in db
-    // realm.write(() => {
-    //   realm.create("List", {name: "List 1"})
-    // });
-
-    // console.log("query: ", realm.objects("List"));
 
   };
 

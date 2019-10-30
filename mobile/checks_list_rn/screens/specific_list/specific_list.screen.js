@@ -13,7 +13,7 @@ import {
     FlatList,
     TouchableOpacity,
     Picker,
-    TouchableWithoutFeedbackBase,
+    // TouchableWithoutFeedbackBase,
     ProgressBarAndroid
     // TouchableHighlight,
 } from 'react-native';
@@ -24,7 +24,9 @@ import { Input, Button } from 'react-native-elements'
 
 // user signature
 import SignatureCapture from 'react-native-signature-capture';
-
+// store a file
+import RNFS from "react-native-fs";
+// var RNFS = require('react-native-fs');
 import { withNavigation } from 'react-navigation';
 
 // import firestore
@@ -41,7 +43,8 @@ import { List, List_Answers } from "../../models/models";
 import NetInfo from "@react-native-community/netinfo";
 
 // import component
-import User_Data from "./components/user_data.component";
+// import User_Data from "./components/user_data.component";
+
 
 // last part of form
 // 0: user data
@@ -111,35 +114,12 @@ class Specific_List extends Component {
                 
                 // validate information is not empty
                 if (this.state.signature != null) {
-
-                    // console.log("answers: ", this.state.answers);
-                    // console.log("send response new implemenation!");
-
-                    // upadte state to wait
-                    this.setState({
-                        wait: true,
-                    });
-
-                    // upload file
-                    // Create a root reference
-                    // const file_name = this.props.navigation.state.params.list.name + "_" + new Date().getUTCMilliseconds();
-                    const file_name = this.props.navigation.state.params.list.name + "_" + Date.now();
                     
-                    console.log(file_name);
-                    var storageRef = storage().ref('signatures/' + file_name);
+                    // check internet connection
+                    NetInfo.fetch().then(state => {
+                        
+                        console.log("netInfo analysis");
 
-					// store file in firebase store
-                    storageRef.putString(this.state.signature, 'base64').then(snapshot => {
-
-                        // return urldownload
-                        return storageRef.getDownloadURL();
-
-                    })
-                    // if it's ok
-					.then(downloadURL => {
-
-						console.log(`Successfully uploaded file and got download link - ${downloadURL}`);
-                    
                         // create list to send
                         const list = {
                             id_list: this.props.navigation.state.params.list.id,
@@ -148,22 +128,64 @@ class Specific_List extends Component {
                             answers: this.state.answers,
                             answers_observations: this.state.answers_observations,
                             type: this.props.navigation.state.params.category,
-                            signature_img: downloadURL,
+                            // signature_img: downloadURL,
                         }
-                        
-                        console.log("list object to send: ", list);
-                        
-                        // check internet connection
-                        NetInfo.fetch().then(state => {
+
+                        // if it is connected
+                        if (state.isConnected) {
                             
-                            // if it is connected
-                            if (state.isConnected) {
-                                console.log("Internet connection detected. Send anwers to server");
+                            console.log("Internet connection detected. Send anwers to server");
+
+                            // console.log("answers: ", this.state.answers);
+                            // console.log("send response new implemenation!");
+
+                            // upadte state to wait
+                            this.setState({
+                                wait: true,
+                            });
+
+                            // upload file
+                            // Create a root reference
+                            // const file_name = this.props.navigation.state.params.list.name + "_" + new Date().getUTCMilliseconds();
+                            const file_name = this.props.navigation.state.params.list.name + "_" + Date.now();
+                            
+                            console.log(file_name);
+                            
+                            var storageRef = storage().ref('signatures/' + file_name);
+
+                            // store file in firebase store
+                            storageRef.putString(this.state.signature, 'base64').then(snapshot => {
+
+                                // return urldownload
+                                return storageRef.getDownloadURL();
+
+                            })
+                            // if it's ok
+                            .then(downloadURL => {
+
+                                console.log(`Successfully uploaded file and got download link - ${downloadURL}`);
+                            
+                                // // create list to send
+                                // const list = {
+                                //     id_list: this.props.navigation.state.params.list.id,
+                                //     name_list: this.props.navigation.state.params.list.name,
+                                //     user_data: this.state.user_data,
+                                //     answers: this.state.answers,
+                                //     answers_observations: this.state.answers_observations,
+                                //     type: this.props.navigation.state.params.category,
+                                //     signature_img: downloadURL,
+                                // }
+                                // add link to signature
+                                list["signature_img"] = downloadURL;
+                            
+                                console.log("list object to send: ", list);
+                            
                                 // send responses to server
                                 // Add a new document with a generated id.
                                 // fs.collection("env_lists_responses").add(list)
                                 // firestore().collection("env_lists_responses").add(list)
                                 firestore().collection("answers").add(list)
+
                                 .then((docRef) => {
                                     console.log("Document written in server with ID: ", docRef.id);
                                     // chagen waiting state
@@ -199,68 +221,76 @@ class Specific_List extends Component {
                                     );
                                 });
         
-                            }
+
+                            })
+                        }
                 
-                            // if there is not internet connection
-                            else {
-                        
-                                console.log("Whitout internet connection. Storing answer in local DB");
-                                
-                                // wait state
-                                this.setState({
-                                    wait: true,
+                        // if there is not internet connection
+                        else {
+                    
+                            console.log("Whitout internet connection. Storing answer in local DB");
+                            
+                            // wait state
+                            this.setState({
+                                wait: true,
+                            });
+
+                            // store image in device
+                            var path = RNFS.DocumentDirectoryPath + '/test.png';
+
+                            // add local file of signature as signature img
+                            list["signature_img"] = path;
+
+                            // write the file
+                            RNFS.writeFile(path, this.state.signature, 'base64')
+
+                                .then((success) => {
+                                    console.log('FILE WRITTEN!');
+
+                                    // store in local DB
+                                    const realm = new Realm({ schema: [List, List_Answers] });
+                                    
+                                    // write in db
+                                    realm.write(() => {
+                                        // realm.create("Env_List_Answers", list);
+                                        realm.create("List_Answers", list);
+                                    });
+
+                                    // console.log("Lists answers after store new answer: ", realm.objects("List_Answers"));
+                                    this.setState({
+                                        wait: false,
+                                    });
+
+                                    // Works on both iOS and Android
+                                    Alert.alert(
+                                        'Respuestas por enviar',
+                                        'Al parecer no tienes conexión a internet, por que las respuestas se almacenarán en tu dispositivo, y se enviarán automaticamente cuando se detecte conexión a internet',
+                                        [
+                                            { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
+                                        ],
+                                        { cancelable: false },
+                                    );                    
+                                })
+                                .catch((err) => {
+                                    console.log(err.message);
+                                    // Alert to try it again
+                                    // Works on both iOS and Android
+                                    Alert.alert(
+                                        'Error al intentar guardar la firma',
+                                        'Hemos tenido un error al intentar almacenar la imagen de la firma en el dispositivo. Intentalo nuevamente por favor.',
+                                        [
+                                            { text: 'Entendido', onPress: () => this.setState({wait: false})},
+                                        ],
+                                        { cancelable: false },
+                                    ); 
                                 });
-                                // store in local DB
-                                // const realm = Realm.getDefaultInstance()
-                
-                                // console.log(Realm.default.getInstance(this.context));
-                                // local DB isntance
-                
-                                // const realm = new Realm({ schema: [Env_List_Answers] });
-                                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers] });
-                                // const realm = new Realm({ schema: [Env_List, SSO_List, Env_List_Answers, SSO_List_Answers] });
-                                const realm = new Realm({ schema: [List, List_Answers] });
-                                
-                                // try to store in DB
-                                // try {
-                                // write in db
-                                realm.write(() => {
-                                    // realm.create("Env_List_Answers", list);
-                                    realm.create("List_Answers", list);
-                                });
-                
-                                console.log("Lists answers after store new answer: ", realm.objects("List_Answers"));
-                                this.setState({
-                                    wait: false,
-                                });
-                                // Works on both iOS and Android
-                                Alert.alert(
-                                    'Respuestas por enviar',
-                                    'Al parecer no tienes conexión a internet, por que las respuestas se almacenarán en tu dispositivo, y se enviarán automaticamente cuando se detecte conexión a internet',
-                                    [
-                                        { text: 'Entendido', onPress: () => this.props.navigation.navigate("Choose_Check_List_Type") },
-                                    ],
-                                    { cancelable: false },
-                                );
-                                // }
-                                // catch () {
-                                //     console.log("Error");
-                
-                                // }
-                                // finally {
-                                    // close local BD
-                                    // console.log("Closing local DB");
-                                    // realm.close();
-                                // }
-                
-                        
+            
                             }
                     
                         });
-                    })
-
                 }
 
+                // if there is not signature
                 else {
                     // Works on both iOS and Android
                     Alert.alert(
@@ -345,16 +375,22 @@ class Specific_List extends Component {
     // save signature
     saveSign() {
         
-        console.log("save sign function");
+        console.log("trying save sign function");
 
-        // save signature
-        this.refs["sign"].saveImage();
-        // console.log(this.refs["sign"].saveImage);
-        
-        // update wait for store image state
-        this.setState({
-            wait_store_signature: true,
-        })
+        try {
+            // save signature
+            this.refs["sign"].saveImage();
+        }
+        catch {
+            console.log("Error storing sign image");
+        }
+        finally {
+            console.log("sign stored");
+            // update wait for store image state
+            this.setState({
+                wait_store_signature: true,
+            })
+        }
     }
 
     // reset signature canvas
@@ -365,10 +401,10 @@ class Specific_List extends Component {
 
     // event for save image of signature
     _onSaveEvent(result) {
-        console.log("On save event function!");
+        console.log("On save event");
         //result.encoded - for the base64 encoded png
         //result.pathName - for the file path name
-        console.log(result);
+        console.log("sign stored in: ", result.pathName);
 
         // update wait for store image state
         this.setState({

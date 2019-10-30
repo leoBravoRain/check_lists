@@ -20,7 +20,7 @@ export const List_Answers = {
         user_data: "string[]",
         answers: "string[]",
         answers_observations: "string[]",
-        signature: "string",
+        signature_img: "string",
     }
 }
 
