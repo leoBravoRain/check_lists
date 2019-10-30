@@ -116,6 +116,7 @@ class App extends Component {
 
               </Link>
 
+              {/* Link without "to" because text has the functino to close session */}
               <Link className="nav-link" style={{ textDecoration: "none" }}>
 
                 <Typography gutterBottom variant="h6" component="h6" onClick={this.on_logout}>

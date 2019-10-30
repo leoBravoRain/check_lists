@@ -648,7 +648,8 @@ class Specific_List extends Component {
 
                         <View
                             style = {{
-                                flex: 1,
+                                // flex: 1,
+                                display: "flex",
                                 flexDirection: "row",
                                 justifyContent: "center"
                             }}

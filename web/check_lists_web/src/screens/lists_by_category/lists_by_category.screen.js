@@ -35,6 +35,7 @@ class Lists_by_Category extends React.Component {
 			// flag of get data from server
             get_lists: false,
             lists: [],
+            donwload: false,
 			// markers (each place is a list of 2 elements)
 			// marker: [latitude, longitude]
 			// pieces_of_ground: this.props.pieces_of_ground,
@@ -115,6 +116,11 @@ class Lists_by_Category extends React.Component {
     
     download_responses(id_list, list_name) {
 
+        // update state
+        this.setState({
+            download: true,
+        });
+
         // get request for get data
         // at first get questions of list
         fs.collection("lists").doc(id_list).get()
@@ -139,22 +145,28 @@ class Lists_by_Category extends React.Component {
                     // get answers of list
                     fs.collection("answers").where("id_list", "==", id_list).get()
             
-                        .then(snapshotquery => {
-            
-                            // console.log(snapshotquery);
-                            // // get data from API
+                    .then(snapshotquery => {
+                        
+                        // console.log(snapshotquery);
+                        // // get data from API
+                        
+                        // if query is not empty
+                        if (!snapshotquery.empty) {
                             
-                            // if query is not empty
-                            if (!snapshotquery.empty) {
-
-                                // console.log("oasjdioa");
-                                var answers = [];
-                                // add questions as header
-                                answers.push(questions_text);
-                                // row for concatenate answer with its observation
-                                var row = [];
+                            // console.log("oasjdioa");
+                            var answers = [];
+                            // add questions as header
+                            answers.push(questions_text);
+                            // row for concatenate answer with its observation
+                            var row = [];
+                            // try to create the data, create csv file and download
+                            try {
+                                
+                                console.log("starting try");
+                                
                                 // iterate over each item
                                 snapshotquery.forEach(doc => {
+
                                     const len = doc.data().answers.length;
                                     // console.log(len);
                                     row = [];
@@ -184,100 +196,102 @@ class Lists_by_Category extends React.Component {
                                 });
             
                                 // console.log(answers);
-            
-                                // try to create csv file and download
-                                try {
-            
-                                    console.log("starting try");
-            
-                                    // empty workbook object
-                                    var wb = XLSX.utils.book_new();
-            
-                                    // console.log(wb);
-            
-                                    wb.Props = {
-                                        Title: list_name,
-                                        // Subject: "Test",
-                                        // Author: "Red Stapler",
-                                        // CreatedDate: new Date(2017, 12, 19)
-                                    };
-            
-                                    // add sheet
-                                    wb.SheetNames.push("Respuestas");
-            
-                                    // add content to sheet
-                                    // var ws_data = [['quiero', 'un', 'dron']];  //a row with 2 columns
-                                    var ws_data = answers;
-            
-                                    // console.log("ws data: ", ws_data);
-            
-                                    // create the sheet from this array
-                                    var ws = XLSX.utils.aoa_to_sheet(ws_data);
-            
-                                    // console.log("ws: ", ws);
-            
-                                    // assign sheet to workbook
-                                    wb.Sheets["Respuestas"] = ws;
-            
-                                    // console.log("befatore wbout");
-            
-                                    // export workbook as xlsx binary
-                                    var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-            
-                                    // console.log("wbout: ", wbout);
-            
-                                    function s2ab(s) {
-                                        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-                                        var view = new Uint8Array(buf);  //create uint8array as viewer
-                                        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                                        return buf;
-                                    }
-            
-                                    // $("#button-a").click(function () {
-                                    saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
-            
-                                //     // console.log(wb);
-            
-                                //     // this work for .csv and it can open with libreoffice but not with excel
-                                //     // // parser data to csv format
-                                //     // const parser = new Parser();
-                                //     // const csv = parser.parse(answers);
-            
-                                //     // // create csv file
-                                //     // let csvContent = "data:text/csv;charset=utf-8," + csv;
-                                //     // var encodedUri = encodeURI(csvContent);
-                                //     // // create hidden link
-                                //     // var link = document.createElement("a");
-                                //     // link.setAttribute("href", encodedUri);
-                                //     // link.setAttribute("download", list_name + ".csv");
-                                //     // document.body.appendChild(link); // Required for FF
-                                //     // // This will download the data file named "my_data.csv".
-                                //     // link.click();
-            
-                                } 
-                                // if there is some error
-                                catch (err) {
-                                    window.alert("Hemos tenido un problema al crear y descargar el archivo con las respuestas, inténtalo de nuevo por favor");
+        
+                                // empty workbook object
+                                var wb = XLSX.utils.book_new();
+        
+                                // console.log(wb);
+        
+                                wb.Props = {
+                                    Title: list_name,
+                                    // Subject: "Test",
+                                    // Author: "Red Stapler",
+                                    // CreatedDate: new Date(2017, 12, 19)
+                                };
+        
+                                // add sheet
+                                wb.SheetNames.push("Respuestas");
+        
+                                // add content to sheet
+                                var ws_data = answers;
+        
+                                // console.log("ws data: ", ws_data);
+        
+                                // create the sheet from this array
+                                var ws = XLSX.utils.aoa_to_sheet(ws_data);
+        
+                                // console.log("ws: ", ws);
+        
+                                // assign sheet to workbook
+                                wb.Sheets["Respuestas"] = ws;
+        
+                                // console.log("befatore wbout");
+        
+                                // export workbook as xlsx binary
+                                var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+        
+                                // console.log("wbout: ", wbout);
+        
+                                function s2ab(s) {
+                                    var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                                    var view = new Uint8Array(buf);  //create uint8array as viewer
+                                    for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                                    return buf;
                                 }
+        
+                                // $("#button-a").click(function () {
+                                saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
+                        
+                            } 
+                            // if there is some error
+                            catch (err) {
+                                window.alert("Hemos tenido un problema al crear y descargar el archivo con las respuestas, inténtalo de nuevo por favor");
+                                // update state
+                                this.setState({
+                                    download: false,
+                                });
                             }
-                            // if query is empty
-                            else {
-                                window.alert("Aún no existen respuestas para esta lista");
+                            finally {
+                                console.log("download ok");
+                                // update state
+                                this.setState({
+                                    download: false,
+                                });
                             }
-                        })
+                        }
+                        // if query is empty
+                        else {
+                            window.alert("Aún no existen respuestas para esta lista");
+                            // update state
+                            this.setState({
+                                download: false,
+                            });
+                        }
+                    })
             
             
-                        // if error
-                        .catch(function (error) {
-            
-                            console.log("error!");
-                            // dislpay error in console
-                            console.log(error);
-            
+                    // if error
+                    .catch(function (error) {
+        
+                        console.log("error!");
+                        // dislpay error in console
+                        console.log(error);
+                        // update state
+                        this.setState({
+                            download: false,
                         });
-                } else {
+        
+                    });
+
+                } 
+                
+                else {
                     // doc.data() will be undefined in this case
                     console.log("No such document!");
+                    // update state
+                    this.setState({
+                        download: false,
+                    });
                 }
             })
             .catch(function (error) {
@@ -285,6 +299,10 @@ class Lists_by_Category extends React.Component {
                 console.log("error: " + error);
                 // dislpay error in console
                 // console.log(error);
+                // update state
+                this.setState({
+                    download: false,
+                });
 
             });
 
@@ -361,16 +379,23 @@ class Lists_by_Category extends React.Component {
                                                 <TableCell> {list.name} </TableCell>
         
                                                 <TableCell> 
-                                                    <Button align="center" variant="contained" color="primary" onClick = {() => this.download_responses(list.id, list.name)}>
-                                                        Descargar
-                                                    </Button>
+
+                                                    {!this.state.download
+                                                    
+                                                    ?
+                                                        <Button align="center" variant="contained" color="primary" onClick = {() => this.download_responses(list.id, list.name)}>
+                                                            Descargar
+                                                        </Button>
+                                                    :
+                                                        <CircularProgress />
+                                                    }
                                                 </TableCell>
         
                                             </TableRow>
                                         )
                                         :
 
-                                            <Typography align="center" variant="body2" component="body2" gutterBottom>
+                                            <Typography align="center" variant="body2" component="p" gutterBottom>
 
                                                 Actualmente no existen listas de este tipo
 
