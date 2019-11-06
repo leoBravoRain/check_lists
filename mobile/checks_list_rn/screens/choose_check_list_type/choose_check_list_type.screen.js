@@ -68,6 +68,7 @@ class Choose_Check_List_Type extends Component {
       sso_lists: [],
       // lists: [],
       stored_answers: 0,
+      uploading_answers: false,
     };
 
   }
@@ -179,7 +180,13 @@ class Choose_Check_List_Type extends Component {
         // if (!(Object.keys(env_list_anwers).length === 0)) {
         if (!(Object.keys(list_anwers).length === 0)) {
           // console.log("Anwsers of env without send were detected. Try to send to server")
-          console.log("Anwsers without send were detected. Try to send to server")
+          console.log("Anwsers without send were detected. Try to send to server");
+
+          //update sate
+          this.setState({
+            uploading_answers: true,
+          });
+
           // // create batch (do multiple operation once time and all together)
           // let batch = firestore().batch();
           // // ref of firestore db
@@ -208,6 +215,11 @@ class Choose_Check_List_Type extends Component {
             // storageRef.putFile(list_anwers[key].signature_img).then(snapshot => {
             storageRef.putFile(answer.signature_img).then(snapshot => {
 
+              //update sate
+              this.setState({
+                uploading_answers: true,
+              });
+
               //   console.log("store file");
 
               // console.log("inside putFile: ", answer);
@@ -220,8 +232,18 @@ class Choose_Check_List_Type extends Component {
             })
               .then((result) => {
 
+                //update sate
+                this.setState({
+                  uploading_answers: true,
+                });
+
                 // wait until all promises finish
                 Promise.all(result).then((values) => {
+
+                  //update sate
+                  this.setState({
+                    uploading_answers: true,
+                  });
 
                   // when all promises are ready
                   console.log("all promises: ", values[1].name_list);
@@ -270,28 +292,36 @@ class Choose_Check_List_Type extends Component {
                         console.log("Delete list from local BD");
 
                       });
+
+                      
                       // chagen waiting state
                       this.setState({
-                        wait: false,
+                        //update sate
+                        uploading_answers: false,
+                        // get length of instances in local DB
+                        stored_answers: Object.keys(realm.objects('List_Answers')).length,
+
                       });
-                      // Works on both iOS and Android
-                      Alert.alert(
-                        'Lista enviada',
-                        'Se han enviado correctamente tus respuestas',
-                        [
-                          { text: 'Entendido' },
-                          // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
-                        ],
-                        { cancelable: false },
-                      );
+                      // // Works on both iOS and Android
+                      // Alert.alert(
+                      //   'Lista enviada',
+                      //   'Se han enviado correctamente tus respuestas',
+                      //   [
+                      //     { text: 'Entendido' },
+                      //     // { text: 'Entendido', onPress: () => this.props.navigation.dispatch(resetAction)},
+                      //   ],
+                      //   { cancelable: false },
+                      // );
 
                     })
 
                     // })
                     .catch((error) => {
-                      // this.setState({
-                      //   wait: false,
-                      // });
+                      // chagen waiting state
+                      this.setState({
+                        uploading_answers: false,
+                      });
+
                       console.error("Error adding document: ", error);
                       // Alert message
                       // Works on both iOS and Android
@@ -414,7 +444,7 @@ class Choose_Check_List_Type extends Component {
         }}
       >
 
-        {this.state.get_lists
+        {this.state.get_lists && !this.state.uploading_answers
 
           ?
 
@@ -472,9 +502,17 @@ class Choose_Check_List_Type extends Component {
           :
           <View>
             <ProgressBarAndroid />
-            <Text>
-              Cargando datos
-                  </Text>
+            {this.state.uploading_answers
+            ?
+              <Text>
+                Subiendo respuestas almacenadas en tu dispositivo
+              </Text>
+            :
+            
+              <Text>
+                Cargando datos
+              </Text>
+            }
           </View>
         }
 
@@ -489,9 +527,11 @@ class Choose_Check_List_Type extends Component {
 const styles = StyleSheet.create({
   text: {
     fontSize: 25,
+    textAlign: "center"
   },
   sub_text: {
     fontSize: 13,
+    textAlign: "center",
   },
   button: {
     margin: 10,
