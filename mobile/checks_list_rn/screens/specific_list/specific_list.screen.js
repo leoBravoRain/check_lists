@@ -119,6 +119,9 @@ class Specific_List extends Component {
                     NetInfo.fetch().then(state => {
                         
                         console.log("netInfo analysis");
+                        
+                        // set file name
+                        const file_name = this.props.navigation.state.params.list.name + "_" + Date.now();
 
                         // create list to send
                         const list = {
@@ -129,7 +132,9 @@ class Specific_List extends Component {
                             answers_observations: this.state.answers_observations,
                             type: this.props.navigation.state.params.category,
                             // signature_img: downloadURL,
+                            signature_img_file_name: file_name,
                         }
+                        
 
                         // if it is connected
                         if (state.isConnected) {
@@ -143,13 +148,8 @@ class Specific_List extends Component {
                             this.setState({
                                 wait: true,
                             });
-
-                            // upload file
-                            // Create a root reference
-                            // const file_name = this.props.navigation.state.params.list.name + "_" + new Date().getUTCMilliseconds();
-                            const file_name = this.props.navigation.state.params.list.name + "_" + Date.now();
                             
-                            console.log(file_name);
+                            // console.log(file_name);
                             
                             var storageRef = storage().ref('signatures/' + file_name);
 
@@ -236,15 +236,19 @@ class Specific_List extends Component {
                             });
 
                             // store image in device
-                            var path = RNFS.DocumentDirectoryPath + '/test.png';
+                            // var path = RNFS.DocumentDirectoryPath + '/test.png';
+                            var path = RNFS.DocumentDirectoryPath + "/" + file_name;
 
                             // add local file of signature as signature img
                             list["signature_img"] = path;
+
+                            console.log("path file: ", path);
 
                             // write the file
                             RNFS.writeFile(path, this.state.signature, 'base64')
 
                                 .then((success) => {
+
                                     console.log('FILE WRITTEN!');
 
                                     // store in local DB

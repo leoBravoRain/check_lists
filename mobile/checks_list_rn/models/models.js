@@ -20,7 +20,10 @@ export const List_Answers = {
         user_data: "string[]",
         answers: "string[]",
         answers_observations: "string[]",
+        // route of file (using local DB)
         signature_img: "string",
+        // file name
+        signature_img_file_name: "string",
     }
 }
 

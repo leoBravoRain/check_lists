@@ -209,7 +209,8 @@ class Choose_Check_List_Type extends Component {
             // var local_list = list_anwers[key];
             // const ref = storage().ref('signatures/' + list_anwers[key].name_list).putFile(list_anwers[key].signature_img);
             // let downloadUrl = storage().ref(list_anwers[key].name_list).getDownloadURL();
-            var storageRef = storage().ref('signatures/' + 'test.png');
+            // var storageRef = storage().ref('signatures/' + 'test.png');
+            var storageRef = storage().ref('signatures/' + answer.signature_img_file_name);
             // store file in firebase store
             // storageRef.putFile(list_anwers[key].signature_img).then(snapshot=> {
             // storageRef.putFile(list_anwers[key].signature_img).then(snapshot => {

@@ -189,9 +189,22 @@ class Choose_One_List extends Component {
               }
             />
           :
-              <Text style = {{margin: 50, fontSize: 20}}>
-                Actualmente no existen listas de esta categoría
-              </Text>
+              <View
+                // style = {{
+                //   display: "flex",
+                //   alignContent: "center",
+                //   justifyContent: "center",
+                // }}
+              >
+
+                <Text style = {{margin: 50, fontSize: 20, textAlign:"center"}}>
+                  Actualmente no existen listas de esta categoría
+                </Text>
+                <Text style={{ margin: 50, fontSize: 12, textAlign: "center" }}>
+                  Intenta conectarte a internet y abrir nuevamente la aplicación
+                </Text>
+
+              </View>
           }
             
         </View>
