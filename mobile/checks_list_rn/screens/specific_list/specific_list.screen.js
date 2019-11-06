@@ -177,9 +177,12 @@ class Specific_List extends Component {
                                 // }
                                 // add link to signature
                                 list["signature_img"] = downloadURL;
-                            
+                                
+                                
                                 console.log("list object to send: ", list);
-                            
+                                // add date
+                                list["date"] = firestore.Timestamp.now();
+                                
                                 // send responses to server
                                 // Add a new document with a generated id.
                                 // fs.collection("env_lists_responses").add(list)
@@ -241,6 +244,9 @@ class Specific_List extends Component {
 
                             // add local file of signature as signature img
                             list["signature_img"] = path;
+                            
+                            // add date
+                            list["creation_date"] = firestore.Timestamp.now().toDate();
 
                             console.log("path file: ", path);
 

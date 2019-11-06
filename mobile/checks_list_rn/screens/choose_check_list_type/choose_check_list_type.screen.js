@@ -273,6 +273,7 @@ class Choose_Check_List_Type extends Component {
                     type: local_list.type,
                     // signature_img: downloadURL,
                     signature_img: values[0],
+                    creation_date: firestore.Timestamp.fromDate(local_list.creation_date),
                   }
 
                   console.log("after overwrite signature img");

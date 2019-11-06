@@ -24,6 +24,7 @@ export const List_Answers = {
         signature_img: "string",
         // file name
         signature_img_file_name: "string",
+        creation_date: "date",
     }
 }
 
