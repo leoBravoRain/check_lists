@@ -500,7 +500,11 @@ class Choose_Check_List_Type extends Component {
 
               <Text style={styles.sub_text}>
                 Para actualizar este número, debes abrir nuevamente la aplicación
-                </Text>
+              </Text>
+
+              <Text style={[styles.sub_text, {margin: 10}]}>
+                Si no puedes ver ninguna lista, debes conectarte a internet para poder descargarlas
+              </Text>
 
             </View>
 
