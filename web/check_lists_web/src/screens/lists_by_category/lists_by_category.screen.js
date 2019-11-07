@@ -130,9 +130,16 @@ class Lists_by_Category extends React.Component {
                 if (doc.exists) {
 
                     // console.log("Document data:", doc.data());
-                    const questions_text = doc.data().user_data;
+                    // it contains the header of file
+                    var questions_text = ["fecha"];
+                    console.log("adding date");
+                    // questions_text.push("fecha");
+                    // console.log("questions text: ", questions_text);
+                    // questions_text.concat(doc.data().user_data);
+                    // questions_text.push(doc.data().user_data);
+                    questions_text = questions_text.concat(doc.data().user_data);
                     // console.log(doc.data().user_data);
-                    // console.log(questions_text);
+                    console.log("questions text: ", questions_text);
                     // console.log(questions_text);
                     const questions = doc.data().questions;
                     for (var i = 0; i < questions.length; ++i) {
@@ -141,7 +148,7 @@ class Lists_by_Category extends React.Component {
                         questions_text.push("Observacion " + (i+1));
                     }
                     // questions_text.concat(doc.data().questions);
-                    // console.log(questions_text);
+                    console.log("final question headers: ", questions_text);
                     // get answers of list
                     fs.collection("answers").where("id_list", "==", id_list).get()
             
@@ -159,17 +166,30 @@ class Lists_by_Category extends React.Component {
                             answers.push(questions_text);
                             // row for concatenate answer with its observation
                             var row = [];
+                            var user_data = [];
                             // try to create the data, create csv file and download
                             try {
                                 
                                 console.log("starting try");
                                 
-                                // iterate over each item
+                                // iterate over each answer
                                 snapshotquery.forEach(doc => {
 
+                                    // console.log("data: ", Object.keys(answers).length);
+                                    // const len = Object.keys(doc.data().answers).length;
                                     const len = doc.data().answers.length;
-                                    // console.log(len);
+                                    console.log("len: ", len);
+                                    user_data = doc.data().user_data;
+                                    // answers of each answer
                                     row = [];
+                                    // add date
+                                    row.push(doc.data().creation_date.toDate());
+                                    // add user data to answers
+                                    // answers.push(user_data.concat(row));
+                                    row = row.concat(user_data);
+                                    // row = row.concat(user_data);
+                                    // console.log("user data: ", user_data);
+                                    console.log("row after add date and user data: ", row);
                                     // row = [doc.data().answers[0], doc.data().answers_observations[0]];
                                     for (var i = 0; i < len; i++) {
                                         // console.log("answer data i: ", doc.data().answers[i]);
@@ -189,13 +209,16 @@ class Lists_by_Category extends React.Component {
                                     // add loteo to list
                                     // answers.push(doc.data().user_data.concat(doc.data().answers));
                                     // answers.concat(row);
-                                    answers.push(doc.data().user_data.concat(row));
+                                    // answers = answers.concat(row);
+                                    answers.push(row);
+                                    // console.log("user data: ", user_data);
+                                    // answers.push(user_data.concat(row));
                                     // answers.push(doc.data().answers);
                                     // console.log(doc.data().answers);
                                     
                                 });
             
-                                // console.log(answers);
+                                console.log("answer to write in xlsx file: ", answers);
         
                                 // empty workbook object
                                 var wb = XLSX.utils.book_new();
@@ -242,9 +265,11 @@ class Lists_by_Category extends React.Component {
                                 // $("#button-a").click(function () {
                                 saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), list_name + '.xlsx');
                         
+                                console.log("download ok");
                             } 
                             // if there is some error
                             catch (err) {
+                                console.log("Error trying to create and download file: ", err);
                                 window.alert("Hemos tenido un problema al crear y descargar el archivo con las respuestas, inténtalo de nuevo por favor");
                                 // update state
                                 this.setState({
@@ -252,7 +277,6 @@ class Lists_by_Category extends React.Component {
                                 });
                             }
                             finally {
-                                console.log("download ok");
                                 // update state
                                 this.setState({
                                     download: false,
@@ -294,7 +318,7 @@ class Lists_by_Category extends React.Component {
                     });
                 }
             })
-            .catch(function (error) {
+            .catch((error) => {
 
                 console.log("error: " + error);
                 // dislpay error in console

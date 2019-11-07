@@ -181,7 +181,7 @@ class Specific_List extends Component {
                                 
                                 console.log("list object to send: ", list);
                                 // add date
-                                list["date"] = firestore.Timestamp.now();
+                                list["creation_date"] = firestore.Timestamp.now();
                                 
                                 // send responses to server
                                 // Add a new document with a generated id.
