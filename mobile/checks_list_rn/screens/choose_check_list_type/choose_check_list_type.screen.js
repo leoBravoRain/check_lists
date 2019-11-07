@@ -263,13 +263,17 @@ class Choose_Check_List_Type extends Component {
                   // console.log("Answer list inside download: " + answer_);
                   // console.log("results: ", downloadURL);
                   // console.log("local list: ", local_list);
+                  // console.log("answers: ", Object.values(local_list.answers));
+                  console.log("answers (this should be an array): ", Array.from(local_list.answers));
+                  console.log("This is an array: ", [0, 1, 3]);
+
                   // create list to send
                   const local_list_2 = {
                     id_list: local_list.id_list,
                     name_list: local_list.name_list,
-                    user_data: local_list.user_data,
-                    answers: local_list.answers,
-                    answers_observations: local_list.answers_observations,
+                    user_data: Array.from(local_list.user_data),
+                    answers: Array.from(local_list.answers),
+                    answers_observations: Array.from(local_list.answers_observations),
                     type: local_list.type,
                     // signature_img: downloadURL,
                     signature_img: values[0],
