@@ -723,9 +723,10 @@ class Specific_List extends Component {
 
 const styles = StyleSheet.create({
     flat_list: {
-        height: "75%",
-        // paddingBottom: 50,
+        height: "77%",
+        paddingBottom: 400,
         // backgroundColor: "red"
+
     },
     item_from_list: {
         margin: 15,

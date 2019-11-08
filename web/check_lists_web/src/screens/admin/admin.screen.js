@@ -22,9 +22,16 @@ import { Button } from "@material-ui/core";
 // import firebase
 import { fs } from "../../libraries/firebase/firebase";
 
+// here it must to add the data that is global for all list and related with each user that is answering the list
 const user_data = [
-    "RUT",
-    "Nombre del trabajador",
+    // "RUT",
+    // "Nombre del trabajador",
+    "Rut del técnico que inspecciona",
+    "Nombre del técnico que inspecciona",
+    "Instalación / Proyecto donde se realiza la inspección",
+    "Trabajo que se inspecciona",
+    "Empresa que se supervisa",
+    "Observación / comentario general",
 ];
 
 class Admin extends React.Component {
