@@ -467,6 +467,7 @@ class Specific_List extends Component {
                         </Text>
 
                         <FlatList
+                            initialNumToRender={this.props.navigation.state.params.list.questions.length}
                             style={styles.flat_list}
                             data={this.props.navigation.state.params.list.questions}
                             // extraData = {this.state.answers}
