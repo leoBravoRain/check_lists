@@ -11,12 +11,15 @@ import {
     //   Image,
     //   ProgressBarAndroid,
     FlatList,
-    TouchableOpacity,
+    // TouchableOpacity,
     Picker,
     // TouchableWithoutFeedbackBase,
-    ProgressBarAndroid
+    ProgressBarAndroid,
+    KeyboardAvoidingView
     // TouchableHighlight,
 } from 'react-native';
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 // RN elements
 import { Input, Button } from 'react-native-elements'
@@ -344,6 +347,14 @@ class Specific_List extends Component {
     }
     
     on_change_user_data (value, index) {
+
+        // if
+        // if (index == this.state.user_data.length-1) {
+        //     // alert("hola");
+        //     console.log("this: ", this);
+        //     // this.refs.input.current.focus();
+        // }
+
         let user_data = this.state.user_data;
         user_data[index] = value;
         console.log(user_data);
@@ -425,11 +436,16 @@ class Specific_List extends Component {
 
     // render parts of form
     render_switch (index) {
+
+        // const input = React.createRef();
+
         switch (index) {
             // first part
             case 0:
                 return (
-                   <View>
+                    <KeyboardAwareScrollView>
+
+                    <View>
                         <Text
                             style={styles.text_title}
                         >
@@ -440,26 +456,36 @@ class Specific_List extends Component {
                             Los campos con (*) son obligatorios
                         </Text>
 
+                        {/* <KeyboardAvoidingView style={styles.container} behavior="padding"> */}
                         <FlatList
-                            style={styles.flat_list}
+                            style={styles.user_data_flat_list}
                             data={this.props.navigation.state.params.list.user_data}
+                            multiline={true}
+                            numberOfLines={2}
                             // extraData = {this.state.answers}
                             renderItem={
                                 ({ item, index }) =>
-                                    <View key = {index}>
+                                <View key = {index}>
                                         <Input
+                                            // autoFocus = {true}
                                             // focus = {true}
+                                            // ref={index == (this.state.user_data.length - 1) ? input => {(input && input.focus())} : null}
                                             label={index != (this.state.user_data.length - 1) ? item + " (*)": item}
                                             onChangeText={text => this.on_change_user_data(text, index)}
                                             value={this.state.user_data[index]}
-                                        // placeholder= {item}
-                                        // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
-                                        />
+                                            // numberOfLines = {2}
+                                            // placeholder= {item}
+                                            // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
+                                            />
                                     </View>
                             }
                             keyExtractor={(item, index) => { index.toString() }}
-                        />
+                            />
+                        {/* </KeyboardAvoidingView> */}
                    </View> 
+
+                    </KeyboardAwareScrollView>
+
                 );
             
             // second part
@@ -476,6 +502,7 @@ class Specific_List extends Component {
                             initialNumToRender={this.props.navigation.state.params.list.questions.length}
                             style={styles.flat_list}
                             data={this.props.navigation.state.params.list.questions}
+                            
                             // extraData = {this.state.answers}
                             renderItem={
                                 ({ item, index }) =>
@@ -601,6 +628,7 @@ class Specific_List extends Component {
                     />
                 );
         }
+
     }
 
     // change part of form
@@ -735,10 +763,21 @@ class Specific_List extends Component {
 }
 
 const styles = StyleSheet.create({
+    user_data_flat_list: {
+        height: "75%",
+        // paddingBottom: 300,
+        marginTop: 10,
+        // marginBottom: 10,
+        // margingBottom: 10,
+        // backgroundColor: "red"
+
+    },
     flat_list: {
         height: "70%",
         paddingBottom: 400,
-        marginTop: 10
+        marginTop: 10,
+        // marginBottom: 10,
+        // margingBottom: 10,
         // backgroundColor: "red"
 
     },
