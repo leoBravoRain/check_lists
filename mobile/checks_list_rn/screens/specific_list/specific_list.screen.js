@@ -435,6 +435,11 @@ class Specific_List extends Component {
                         >
                             Datos del trabajador
                         </Text>
+
+                        <Text>
+                            Los campos con (*) son obligatorios
+                        </Text>
+
                         <FlatList
                             style={styles.flat_list}
                             data={this.props.navigation.state.params.list.user_data}
@@ -443,7 +448,8 @@ class Specific_List extends Component {
                                 ({ item, index }) =>
                                     <View key = {index}>
                                         <Input
-                                            label={item}
+                                            // focus = {true}
+                                            label={index != (this.state.user_data.length - 1) ? item + " (*)": item}
                                             onChangeText={text => this.on_change_user_data(text, index)}
                                             value={this.state.user_data[index]}
                                         // placeholder= {item}
@@ -598,39 +604,45 @@ class Specific_List extends Component {
     }
 
     // change part of form
+    // this function will change the part of the form to press next or previuos button
     change_part (next_page) {
-        // save image if it's in the signature part
-        // change value of index (actually 2 is the signature part)
-        // if (this.state.index == 2) {
-            // console.log("new save sign");
-            // // update wait for store image state
-            // this.setState({
-            //     wait_store_signature: true,
-            // })
-            // // this.saveSign();
-            // this.refs["sign"].saveImage();
-            // console.log("before while");
-            // while (this.state.wait_store_signature) {
-            //     console.log("waiting");
-            // }
-            // console.log("stop watiing");
-            // this.setState({
-            //     index: next_page ? this.state.index + 1 : this.state.index - 1,
-            // })
-        // }
 
-        // else {
-        //     this.setState({
-        //         index: next_page ? this.state.index + 1 : this.state.index - 1,
-        //     })
-        // };
-        // console.log(next_page)
-        // update state
-        // console.log(this.state.index);
-        this.setState({
-            index: next_page ? this.state.index + 1 : this.state.index - 1,
-        })
+        // if page is form for fill user data
+        if (this.state.index == 0) {
+            
+            // validate if all fields of user data are filled
+            if(!this.state.user_data.slice(0, this.state.user_data.length-1).some(function (i) { return i.length === 0})) {
 
+                // go to next section of form
+                this.setState({
+                    index: next_page ? this.state.index + 1 : this.state.index - 1,
+                })
+            }
+
+            // if there is any required field null 
+            else {
+                // user message
+                // Works on both iOS and Android
+                Alert.alert(
+                    'Falta rellenar información',
+                    'Debes rellenar toda la información requerida',
+                    [
+                        { text: 'Entendido'},
+                    ],
+                    { cancelable: false },
+                );
+            }
+            
+        }
+
+        // if there is another section of form
+        else {
+
+            // go to next section of form
+            this.setState({
+                index: next_page ? this.state.index + 1 : this.state.index - 1,
+            })
+        }
     }
 
     // Render method
@@ -724,8 +736,9 @@ class Specific_List extends Component {
 
 const styles = StyleSheet.create({
     flat_list: {
-        height: "77%",
+        height: "70%",
         paddingBottom: 400,
+        marginTop: 10
         // backgroundColor: "red"
 
     },
