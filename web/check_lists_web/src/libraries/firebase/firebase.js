@@ -2,15 +2,14 @@ import firebase from "firebase";
 
 // API credentials
 var firebaseConfig = {
-    apiKey: "AIzaSyA_tbQqUAGK0CVCgYW6ilmmnRlH2r_nON4",
-    authDomain: "check-lists-693dc.firebaseapp.com",
-    databaseURL: "https://check-lists-693dc.firebaseio.com",
-    projectId: "check-lists-693dc",
-    storageBucket: "check-lists-693dc.appspot.com",
-    messagingSenderId: "1001920658249",
-    appId: "1:1001920658249:web:756f36e5e312e7312b7898",
-    measurementId: "G-5J4J1JWBH3"
-  };
+  apiKey: "AIzaSyCAVy5tcA_8BF7PBaJ-ZNkQYUKr-_xyuaE",
+  authDomain: "check-list-60e66.firebaseapp.com",
+  databaseURL: "https://check-list-60e66.firebaseio.com",
+  projectId: "check-list-60e66",
+  storageBucket: "check-list-60e66.appspot.com",
+  messagingSenderId: "436061024828",
+  appId: "1:436061024828:web:60afb1a5b5d321320ec939"
+};
 
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);

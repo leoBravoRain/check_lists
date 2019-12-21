@@ -45,6 +45,7 @@ class Admin extends React.Component {
         }
         this.handleChange = this.handleChange.bind(this);
         this.upload_list = this.upload_list.bind(this);
+        // console.log("admin screen");
     }
 
     upload_list () {
@@ -78,15 +79,25 @@ class Admin extends React.Component {
     }
 
     handleChange(selectorFiles) {
+
+        // console.log(selectorFiles);
+
+        // get order of list
+        const list_order = parseInt(selectorFiles[0].name.replace(".xlsx", ""));
+        
+        // console.log("new file");
         var list = {
+            order: list_order,
             name: "",
             questions: []
         };
-        // console.log(selectorFiles);
+        
         // const input = document.getElementById('input');
         // console.log(input);
         // readXlsxFile(input.files[0]).then((rows) => {
+        
         readXlsxFile(selectorFiles[0]).then((rows) => {
+
             // `rows` is an array of rows
             // each row being an array of cells.
             console.log(rows);
@@ -139,6 +150,7 @@ class Admin extends React.Component {
                         id = "input"
                         type="file" 
                         onChange={(e) => this.handleChange(e.target.files)} 
+                        // multiple
                     />
 
                     <Button align="center" variant="contained" color="primary" onClick={() => this.upload_list()}>
@@ -173,6 +185,18 @@ class Admin extends React.Component {
                                 <Typography align="center" variant="h4" component="h2" gutterBottom>
 
                                     {this.state.type}
+
+                                </Typography>
+
+                                <Typography align="center" variant="h6" component="h6" gutterBottom>
+
+                                    Orden:
+
+                                </Typography>
+
+                                <Typography align="center" variant="h4" component="h2" gutterBottom>
+
+                                    {this.state.list.order}
 
                                 </Typography>
 

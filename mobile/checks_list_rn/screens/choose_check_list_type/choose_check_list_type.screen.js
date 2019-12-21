@@ -98,7 +98,8 @@ class Choose_Check_List_Type extends Component {
 
         // get lists from server
         // firestore().collection("env_list_new_structure").get().then(snapshotquery => {
-        firestore().collection("lists").get().then(snapshotquery => {
+        firestore().collection("lists").orderBy('order').get().then(snapshotquery => {
+        // firestore().collection("lists").get().then(snapshotquery => {
 
           // console.log("Update database of ENV");
           console.log("Update database of lists");
