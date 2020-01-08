@@ -68,10 +68,13 @@ class Lists_by_Category extends React.Component {
 
         });
 
+        console.log(this.props.match.params.category);
+        
         // get request for get data
         // fs.collection(this.props.match.params.category).get()
         // fs.collection(this.props.match.params.category).get()
-        fs.collection("lists").where("type", "==", this.props.match.params.category).get()
+        // fs.collection("lists").where("type", "==", this.props.match.params.category).get()
+        fs.collection("lists").where("type", "==", this.props.match.params.category).orderBy("order").get()
 
             .then(snapshotquery => {
                 
@@ -90,6 +93,9 @@ class Lists_by_Category extends React.Component {
                     // console.log(doc.data());
 
                 });
+
+
+                console.log(lists);
 
                 // update state
                 this.setState({
